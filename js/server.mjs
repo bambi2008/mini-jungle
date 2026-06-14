@@ -4,7 +4,7 @@ import { extname, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const PORT = 3000;
-const ROOT = dirname(fileURLToPath(import.meta.url));
+const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const MIME = {
   '.html': 'text/html; charset=utf-8',
