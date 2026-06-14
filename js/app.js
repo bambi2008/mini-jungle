@@ -710,6 +710,138 @@ function initProductHover() {
 }
 
 // ═════════════════════════════════════════════════════════
+// INTRO SOUNDSCAPE — generative 5s "plants growing" audio
+// ═════════════════════════════════════════════════════════
+function playIntroSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const now = ctx.currentTime;
+    const master = ctx.createGain();
+    master.gain.setValueAtTime(0, now);
+    master.gain.linearRampToValueAtTime(0.35, now + 0.3);
+    master.gain.linearRampToValueAtTime(0.3, now + 4.0);
+    master.gain.linearRampToValueAtTime(0, now + 5.5);
+    master.connect(ctx.destination);
+
+    // Helper: play a soft bell/chime
+    function chime(freq, start, vol = 0.15, dur = 1.5) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, start);
+      osc.frequency.linearRampToValueAtTime(freq * 1.02, start + dur);
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(vol, start + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + dur);
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(start);
+      osc.stop(start + dur);
+    }
+
+    // Helper: soft rising tone
+    function rise(startFreq, endFreq, start, dur = 3, vol = 0.08) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(startFreq, start);
+      osc.frequency.exponentialRampToValueAtTime(endFreq, start + dur);
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(vol, start + 0.4);
+      gain.gain.linearRampToValueAtTime(0, start + dur);
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(start);
+      osc.stop(start + dur);
+    }
+
+    // Helper: water droplet
+    function droplet(baseFreq, start, vol = 0.12) {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(baseFreq, start);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.3, start + 0.25);
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(vol, start + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.3);
+      osc.connect(gain);
+      gain.connect(master);
+      osc.start(start);
+      osc.stop(start + 0.3);
+    }
+
+    // Helper: soft noise texture (like rustling leaves)
+    function leafTexture(start, dur = 4, vol = 0.04) {
+      const bufferSize = ctx.sampleRate * dur;
+      const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        data[i] = (Math.random() * 2 - 1) * Math.sin((i / bufferSize) * Math.PI);
+      }
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.value = 3000;
+      filter.Q.value = 0.5;
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0, start);
+      gain.gain.linearRampToValueAtTime(vol, start + 0.3);
+      gain.gain.linearRampToValueAtTime(0, start + dur);
+      source.connect(filter);
+      filter.connect(gain);
+      gain.connect(master);
+      source.start(start);
+      source.stop(start + dur);
+    }
+
+    // ── Compose the soundscape ──
+
+    // Ambient rising pad (like a plant stretching toward light)
+    rise(180, 520, now, 5.0, 0.07);
+    rise(220, 660, now + 0.3, 4.5, 0.05);
+    rise(150, 440, now + 0.6, 4.8, 0.06);
+
+    // Leaf rustle texture
+    leafTexture(now, 5.0, 0.035);
+
+    // Gentle chimes — like water drops on leaves
+    chime(523, now + 1.0, 0.12, 1.5);
+    chime(659, now + 1.6, 0.10, 1.3);
+    chime(784, now + 2.2, 0.11, 1.4);
+    chime(880, now + 2.8, 0.09, 1.2);
+    chime(1047, now + 3.4, 0.10, 1.5);
+    chime(1175, now + 3.8, 0.08, 1.3);
+
+    // Water droplets
+    droplet(1200, now + 0.8, 0.10);
+    droplet(1400, now + 1.5, 0.08);
+    droplet(1100, now + 2.3, 0.09);
+    droplet(1600, now + 3.1, 0.07);
+    droplet(1300, now + 3.7, 0.08);
+    droplet(1800, now + 4.2, 0.06);
+
+    // Sub-bass warmth
+    const sub = ctx.createOscillator();
+    const subGain = ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(55, now);
+    sub.frequency.linearRampToValueAtTime(60, now + 5);
+    subGain.gain.setValueAtTime(0, now);
+    subGain.gain.linearRampToValueAtTime(0.06, now + 0.5);
+    subGain.gain.linearRampToValueAtTime(0, now + 5);
+    sub.connect(subGain);
+    subGain.connect(master);
+    sub.start(now);
+    sub.stop(now + 5.5);
+
+  } catch (e) {
+    // Audio not supported — silent fallback
+  }
+}
+
+// ═════════════════════════════════════════════════════════
 // BOOT
 // ═════════════════════════════════════════════════════════
 async function boot() {
@@ -723,6 +855,20 @@ async function boot() {
   initCursor();
   initNavDots();
   initProductHover();
+
+  // Intro sound on first user interaction
+  let soundPlayed = false;
+  function tryPlaySound() {
+    if (soundPlayed) return;
+    soundPlayed = true;
+    playIntroSound();
+    ['click', 'scroll', 'touchstart', 'keydown'].forEach((ev) => {
+      window.removeEventListener(ev, tryPlaySound);
+    });
+  }
+  ['click', 'scroll', 'touchstart', 'keydown'].forEach((ev) => {
+    window.addEventListener(ev, tryPlaySound, { once: false });
+  });
 
   window.addEventListener('resize', onResize);
   window.addEventListener('mousemove', onMouseMove);
