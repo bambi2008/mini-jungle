@@ -348,7 +348,8 @@ img { display: block; max-width: 100%; }
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  min-width: 0;
+  width: calc(100% / 3);
+  flex-shrink: 0;
   transition: border-color 0.35s ease, transform 0.35s ease;
 }
 
