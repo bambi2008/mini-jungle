@@ -337,7 +337,7 @@ img { display: block; max-width: 100%; }
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
-  max-width: 700px;
+  max-width: 900px;
 }
 
 .variant-card {
@@ -358,7 +358,7 @@ img { display: block; max-width: 100%; }
 
 .variant-img {
   width: 100%;
-  aspect-ratio: 4/3;
+  aspect-ratio: 3/2;
   background-size: cover;
   background-position: center;
 }
