@@ -511,7 +511,7 @@ function closeVideo() {
 
 function initInlineVideos() {
   // Background videos play inline — mute all, ensure autoplay
-  document.querySelectorAll('.product-video-bg').forEach((video) => {
+  document.querySelectorAll('.product-video-bg, .brand-video-full').forEach((video) => {
     video.muted = true;
     video.playsInline = true;
     video.loop = true;
