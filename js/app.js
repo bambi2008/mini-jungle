@@ -274,21 +274,34 @@ function initScrollAnimations() {
       );
     });
 
-    // Background image scales in
+    // Background image — dynamic scroll-driven zoom + parallax
     const bg = section.querySelector('.product-bg-image');
     if (bg) {
+      // Initial reveal
       gsap.fromTo(bg,
-        { scale: 1.12, opacity: 0 },
+        { scale: 1.1, opacity: 0 },
         {
           scale: 1, opacity: 1, duration: 1.8,
           scrollTrigger: {
             trigger: section,
-            start: 'top 75%',
+            start: 'top 78%',
             toggleActions: 'play none none none',
           },
           ease: 'power2.out',
         }
       );
+
+      // Continuous scroll-driven zoom (Ken Burns effect)
+      gsap.to(bg, {
+        scale: 1.12,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: section,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: 0.8,
+        },
+      });
     }
   });
 

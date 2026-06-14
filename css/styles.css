@@ -174,13 +174,15 @@ img { display: block; max-width: 100%; }
   z-index: 0;
   filter: saturate(0.6) brightness(0.5);
   transition: opacity 0.8s ease, transform 1.2s ease;
+  will-change: transform;
 }
 
-#product-space  .product-bg-image { background-image: url('https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1920&q=80'); }
-#product-wall   .product-bg-image { background-image: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=1920&q=80'); }
-#product-desk   .product-bg-image { background-image: url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=80'); }
-#product-gift   .product-bg-image { background-image: url('https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=1920&q=80'); }
-#product-doctor .product-bg-image { background-image: url('https://images.unsplash.com/photo-1491147334573-44cbb4602074?w=1920&q=80'); }
+/* Each product background has a slightly different focal point for variety */
+#product-space  .product-bg-image { background-image: url('https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1920&q=80'); transform-origin: center 30%; }
+#product-wall   .product-bg-image { background-image: url('https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=1920&q=80'); transform-origin: center 60%; }
+#product-desk   .product-bg-image { background-image: url('https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=80'); transform-origin: center 25%; }
+#product-gift   .product-bg-image { background-image: url('https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=1920&q=80'); transform-origin: center 55%; }
+#product-doctor .product-bg-image { background-image: url('https://images.unsplash.com/photo-1491147334573-44cbb4602074?w=1920&q=80'); transform-origin: center 40%; }
 
 .product-overlay {
   position: relative;
