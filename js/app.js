@@ -509,29 +509,26 @@ function closeVideo() {
   modal.classList.add('hidden');
 }
 
-function initVideoButtons() {
-  // VIDEO buttons on product cards
-  document.querySelectorAll('.btn-video').forEach((btn) => {
-    btn.addEventListener('click', (e) => {
-      e.preventDefault();
-      const section = btn.closest('.product-section');
-      const productKey = section ? section.dataset.product : null;
-      if (productKey) openVideo(productKey);
-    });
-  });
+function initInlineVideos() {
+  // Background videos play inline — mute all, ensure autoplay
+  document.querySelectorAll('.product-video-bg').forEach((video) => {
+    video.muted = true;
+    video.playsInline = true;
+    video.loop = true;
 
-  // Modal close
-  document.getElementById('video-modal').querySelector('.video-close').addEventListener('click', closeVideo);
-  document.getElementById('video-modal').querySelector('.video-backdrop').addEventListener('click', closeVideo);
+    // Play when section enters viewport, pause when not
+    const section = video.closest('.product-section');
+    if (!section) return;
 
-  // ESC key
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') closeVideo();
-  });
-
-  // Click on the video container itself shouldn't close it
-  document.querySelector('.video-modal-box').addEventListener('click', (e) => {
-    e.stopPropagation();
+    new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {}); // ignore if no local file
+        } else {
+          video.pause();
+        }
+      });
+    }, { threshold: 0.3 }).observe(section);
   });
 }
 
@@ -548,17 +545,12 @@ function waURL(product, action) {
 }
 
 function initWhatsAppButtons() {
-  document.querySelectorAll('.btn-buy').forEach((btn) => {
+  // New small buy buttons on variant cards + any legacy buttons
+  document.querySelectorAll('.btn-buy-sm, .btn-buy, .btn-inquire').forEach((btn) => {
     btn.addEventListener('click', () => {
       const product = btn.dataset.waProduct || 'HK MiniJungle';
-      window.open(waURL(product, 'buy'), '_blank', 'noopener');
-    });
-  });
-
-  document.querySelectorAll('.btn-inquire').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const product = btn.dataset.waProduct || 'HK MiniJungle';
-      window.open(waURL(product, 'inquire'), '_blank', 'noopener');
+      const action = btn.classList.contains('btn-inquire') ? 'inquire' : 'buy';
+      window.open(waURL(product, action), '_blank', 'noopener');
     });
   });
 }
@@ -656,16 +648,19 @@ function initNavDots() {
 function initProductHover() {
   document.querySelectorAll('.product-section').forEach((section) => {
     const bg = section.querySelector('.product-bg-image');
+    const video = section.querySelector('.product-video-bg');
     const overlay = section.querySelector('.product-overlay');
-    if (!bg || !overlay) return;
+    if (!overlay) return;
 
     section.addEventListener('mouseenter', () => {
-      gsap.to(bg, { scale: 1.05, opacity: 0.45, duration: 0.8, ease: 'power2.out' });
+      if (bg) gsap.to(bg, { scale: 1.05, opacity: 0.4, duration: 0.8, ease: 'power2.out' });
+      if (video) gsap.to(video, { scale: 1.05, opacity: 0.55, duration: 0.8, ease: 'power2.out' });
       gsap.to(overlay, { x: 10, duration: 0.6, ease: 'power2.out' });
     });
 
     section.addEventListener('mouseleave', () => {
-      gsap.to(bg, { scale: 1, opacity: 0.35, duration: 0.8, ease: 'power2.out' });
+      if (bg) gsap.to(bg, { scale: 1, opacity: 0.3, duration: 0.8, ease: 'power2.out' });
+      if (video) gsap.to(video, { scale: 1, opacity: 0.45, duration: 0.8, ease: 'power2.out' });
       gsap.to(overlay, { x: 0, duration: 0.6, ease: 'power2.out' });
     });
   });
@@ -680,7 +675,7 @@ async function boot() {
 
   await initLenis();
   initScrollAnimations();
-  initVideoButtons();
+  initInlineVideos();
   initWhatsAppButtons();
   initCursor();
   initNavDots();
