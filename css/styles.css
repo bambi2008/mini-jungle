@@ -726,6 +726,35 @@ img { display: block; max-width: 100%; }
   transform: scale(1.3);
 }
 
+/* ═══════════════ SOUND INDICATOR ═══════════════ */
+.sound-indicator {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  z-index: 200;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(10,10,10,0.7);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.sound-indicator:hover {
+  border-color: var(--accent);
+}
+
+.sound-indicator.playing {
+  border-color: rgba(143,191,154,0.4);
+  box-shadow: 0 0 16px rgba(143,191,154,0.15);
+}
+
 /* ═══════════════ RESPONSIVE ═══════════════ */
 @media (max-width: 768px) {
   .product-section {

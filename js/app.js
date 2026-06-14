@@ -712,14 +712,24 @@ function initProductHover() {
 // ═════════════════════════════════════════════════════════
 // INTRO SOUNDSCAPE — generative 5s "plants growing" audio
 // ═════════════════════════════════════════════════════════
+let audioCtx = null;
+
 function playIntroSound() {
   try {
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    // Resume if suspended (browser policy)
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    const ctx = audioCtx;
     const now = ctx.currentTime;
     const master = ctx.createGain();
     master.gain.setValueAtTime(0, now);
-    master.gain.linearRampToValueAtTime(0.35, now + 0.3);
-    master.gain.linearRampToValueAtTime(0.3, now + 4.0);
+    master.gain.linearRampToValueAtTime(0.5, now + 0.3);
+    master.gain.setValueAtTime(0.5, now + 3.5);
     master.gain.linearRampToValueAtTime(0, now + 5.5);
     master.connect(ctx.destination);
 
@@ -836,8 +846,11 @@ function playIntroSound() {
     sub.start(now);
     sub.stop(now + 5.5);
 
+    console.log('%c🔊 Soundscape playing %c— 5s plant-growth audio',
+      'color:#8FBF9A;', 'color:#A09A90;');
+
   } catch (e) {
-    // Audio not supported — silent fallback
+    console.warn('Audio not supported:', e.message);
   }
 }
 
@@ -856,19 +869,34 @@ async function boot() {
   initNavDots();
   initProductHover();
 
-  // Intro sound on first user interaction
-  let soundPlayed = false;
+  // Intro sound on first click
+  const soundBtn = document.getElementById('sound-indicator');
   function tryPlaySound() {
-    if (soundPlayed) return;
-    soundPlayed = true;
     playIntroSound();
-    ['click', 'scroll', 'touchstart', 'keydown'].forEach((ev) => {
-      window.removeEventListener(ev, tryPlaySound);
+    if (soundBtn) {
+      soundBtn.textContent = '🔊';
+      soundBtn.classList.add('playing');
+    }
+    document.removeEventListener('click', tryPlaySound);
+    document.removeEventListener('touchstart', tryPlaySound);
+    // Reset icon after sound ends
+    setTimeout(() => {
+      if (soundBtn) {
+        soundBtn.textContent = '🔇';
+        soundBtn.classList.remove('playing');
+      }
+    }, 5500);
+  }
+  document.addEventListener('click', tryPlaySound);
+  document.addEventListener('touchstart', tryPlaySound);
+
+  // Click on sound indicator also triggers
+  if (soundBtn) {
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      tryPlaySound();
     });
   }
-  ['click', 'scroll', 'touchstart', 'keydown'].forEach((ev) => {
-    window.addEventListener(ev, tryPlaySound, { once: false });
-  });
 
   window.addEventListener('resize', onResize);
   window.addEventListener('mousemove', onMouseMove);
