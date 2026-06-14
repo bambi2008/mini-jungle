@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HK MiniJungle — A Living System. Not a Plant.</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ═══════════════ THREE.JS CANVAS ═══════════════ -->
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- ═══════════════ MAIN CONTENT ═══════════════ -->
+  <main id="scroll-container">
+
+    <!-- ══ SECTION 0 · HERO ══ -->
+    <section id="hero" class="scene" data-scene="hero">
+      <div class="hero-content">
+        <p class="hero-overline" data-anim="fade-up">Green Workplace · Biophilic Design · Mini Jungle System</p>
+        <h1 class="hero-title" data-anim="type-text">HK MiniJungle</h1>
+        <p class="hero-subtitle" data-anim="fade-up">A LIVING SYSTEM.<br>NOT A PLANT.</p>
+        <div class="hero-cursor" data-anim="blink">▮</div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 1 · MANIFESTO ══ -->
+    <section id="manifesto" class="scene" data-scene="manifesto">
+      <div class="manifesto-grid">
+        <div class="manifesto-line" data-anim="reveal-line">
+          <span class="comment">// 01.</span>
+          <span class="statement">We do not sell plants.</span>
+        </div>
+        <div class="manifesto-line" data-anim="reveal-line">
+          <span class="comment">// 02.</span>
+          <span class="statement">We build living systems for urban spaces.</span>
+        </div>
+        <div class="manifesto-line" data-anim="reveal-line">
+          <span class="comment">// 03.</span>
+          <span class="statement">Moss walls that breathe.</span>
+        </div>
+        <div class="manifesto-line" data-anim="reveal-line">
+          <span class="comment">// 04.</span>
+          <span class="statement">Living canvases. Zero soil. Zero noise.</span>
+        </div>
+        <div class="manifesto-line" data-anim="reveal-line">
+          <span class="comment">// 05.</span>
+          <span class="statement">Designed for Hong Kong. Built for the world.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 2 · PRODUCTS ══ -->
+
+    <!-- Product 01: Signature Space -->
+    <section id="product-space" class="scene product-section" data-scene="product" data-product="signature-space">
+      <div class="product-bg-image" data-anim="scale-bg"></div>
+      <div class="product-overlay">
+        <div class="product-index" data-anim="fade-up">PRODUCT / 01</div>
+        <h2 class="product-name" data-anim="fade-up">Signature Space</h2>
+        <div class="product-meta" data-anim="fade-up">
+          <span>BESPOKE</span>
+          <span class="dot">·</span>
+          <span>CUSTOM DIMENSIONS</span>
+          <span class="dot">·</span>
+          <span>BRAND STATEMENT</span>
+        </div>
+        <p class="product-desc" data-anim="fade-up">
+          A one-of-one living installation for headquarters, flagship stores, and hotel lobbies.
+          Designed as brand language — not decoration.
+        </p>
+        <div class="product-specs" data-anim="fade-up">
+          <div class="spec"><span class="label">System</span><span class="value">Xponge Soilless + Closed-loop</span></div>
+          <div class="spec"><span class="label">Lead Time</span><span class="value">4–8 Weeks</span></div>
+          <div class="spec"><span class="label">Maintenance</span><span class="value">Monthly Subscription</span></div>
+        </div>
+        <div class="product-price" data-anim="fade-up">FROM HK$XX,XXX</div>
+        <div class="product-actions" data-anim="fade-up">
+          <button class="btn-buy" data-wa-product="Signature Space">PURCHASE</button>
+          <button class="btn-video" data-video="jungle">▶ VIDEO</button>
+          <button class="btn-inquire" data-wa-product="Signature Space">WHATSAPP</button>
+        </div>
+      </div>
+      <div class="product-image-reveal"></div>
+    </section>
+
+    <!-- Product 02: MiniJungle Wall -->
+    <section id="product-wall" class="scene product-section" data-scene="product" data-product="wall">
+      <div class="product-bg-image" data-anim="scale-bg"></div>
+      <div class="product-overlay">
+        <div class="product-index" data-anim="fade-up">PRODUCT / 02</div>
+        <h2 class="product-name" data-anim="fade-up">MiniJungle Wall</h2>
+        <div class="product-meta" data-anim="fade-up">
+          <span>55 × 240 CM</span>
+          <span class="dot">·</span>
+          <span>ULTRA-THIN</span>
+          <span class="dot">·</span>
+          <span>MODULAR</span>
+        </div>
+        <p class="product-desc" data-anim="fade-up">
+          A living painting. Slimmer than a frame, more alive than a garden.
+          Wall-mounted, self-irrigating, zero-mess installation.
+        </p>
+        <div class="product-specs" data-anim="fade-up">
+          <div class="spec"><span class="label">Dimensions</span><span class="value">55 × 240 cm</span></div>
+          <div class="spec"><span class="label">System</span><span class="value">Xponge Soilless + LED</span></div>
+          <div class="spec"><span class="label">Subscription</span><span class="value">From HK$XXX/month</span></div>
+        </div>
+        <div class="product-price" data-anim="fade-up">FROM HK$X,XXX</div>
+        <div class="product-actions" data-anim="fade-up">
+          <button class="btn-buy" data-wa-product="MiniJungle Wall">PURCHASE</button>
+          <button class="btn-video" data-video="wall">▶ VIDEO</button>
+          <button class="btn-inquire" data-wa-product="MiniJungle Wall">WHATSAPP</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product 03: MiniJungle Desk -->
+    <section id="product-desk" class="scene product-section" data-scene="product" data-product="desk">
+      <div class="product-bg-image" data-anim="scale-bg"></div>
+      <div class="product-overlay">
+        <div class="product-index" data-anim="fade-up">PRODUCT / 03</div>
+        <h2 class="product-name" data-anim="fade-up">MiniJungle Desk</h2>
+        <div class="product-meta" data-anim="fade-up">
+          <span>DESKTOP</span>
+          <span class="dot">·</span>
+          <span>PERSONAL</span>
+          <span class="dot">·</span>
+          <span>PLUG &amp; GROW</span>
+        </div>
+        <p class="product-desc" data-anim="fade-up">
+          A miniature forest on your desk. Not a houseplant —
+          a designed object with presence, personality, and roots.
+        </p>
+        <div class="product-specs" data-anim="fade-up">
+          <div class="spec"><span class="label">Size</span><span class="value">Desktop-scale</span></div>
+          <div class="spec"><span class="label">System</span><span class="value">Self-contained Planter</span></div>
+          <div class="spec"><span class="label">Perfect For</span><span class="value">Office / Home / Co-working</span></div>
+        </div>
+        <div class="product-price" data-anim="fade-up">FROM HK$XXX</div>
+        <div class="product-actions" data-anim="fade-up">
+          <button class="btn-buy" data-wa-product="MiniJungle Desk">PURCHASE</button>
+          <button class="btn-video" data-video="desk">▶ VIDEO</button>
+          <button class="btn-inquire" data-wa-product="MiniJungle Desk">WHATSAPP</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product 04: Gift Box -->
+    <section id="product-gift" class="scene product-section" data-scene="product" data-product="gift">
+      <div class="product-bg-image" data-anim="scale-bg"></div>
+      <div class="product-overlay">
+        <div class="product-index" data-anim="fade-up">PRODUCT / 04</div>
+        <h2 class="product-name" data-anim="fade-up">Gift Box</h2>
+        <div class="product-meta" data-anim="fade-up">
+          <span>COLLECTIBLE</span>
+          <span class="dot">·</span>
+          <span>PORTABLE</span>
+          <span class="dot">·</span>
+          <span>SHAREABLE</span>
+        </div>
+        <p class="product-desc" data-anim="fade-up">
+          Collected like art toys. Gifted like treasures. Grown like plants.
+          Each box is a self-contained green universe — ready to unbox and display.
+        </p>
+        <div class="product-specs" data-anim="fade-up">
+          <div class="spec"><span class="label">Format</span><span class="value">Curated Gift Box</span></div>
+          <div class="spec"><span class="label">Contents</span><span class="value">Plant + Vessel + Care Card</span></div>
+          <div class="spec"><span class="label">Collection</span><span class="value">Limited Seasonal Drops</span></div>
+        </div>
+        <div class="product-price" data-anim="fade-up">FROM HK$XXX</div>
+        <div class="product-actions" data-anim="fade-up">
+          <button class="btn-buy" data-wa-product="Gift Box">PURCHASE</button>
+          <button class="btn-video" data-video="gift">▶ VIDEO</button>
+          <button class="btn-inquire" data-wa-product="Gift Box">WHATSAPP</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product 05: Doctor Forest -->
+    <section id="product-doctor" class="scene product-section" data-scene="product" data-product="doctor">
+      <div class="product-bg-image" data-anim="scale-bg"></div>
+      <div class="product-overlay">
+        <div class="product-index" data-anim="fade-up">PRODUCT / 05</div>
+        <h2 class="product-name" data-anim="fade-up">Doctor Forest</h2>
+        <div class="product-meta" data-anim="fade-up">
+          <span>STRATEGY</span>
+          <span class="dot">·</span>
+          <span>B2B</span>
+          <span class="dot">·</span>
+          <span>ESG + WELLNESS</span>
+        </div>
+        <p class="product-desc" data-anim="fade-up">
+          A five-step green workplace strategy: Audit → Design → Install → Subscribe → Storytell.
+          For companies that want biophilic design as a service, not a project.
+        </p>
+        <div class="product-specs" data-anim="fade-up">
+          <div class="spec"><span class="label">Steps</span><span class="value">Audit / Design / Install / Maintain / Tell</span></div>
+          <div class="spec"><span class="label">Output</span><span class="value">Strategy + Installation + ESG Kit</span></div>
+          <div class="spec"><span class="label">Ideal For</span><span class="value">Offices / Hotels / Coworking</span></div>
+        </div>
+        <div class="product-price" data-anim="fade-up">FROM HK$XX,XXX / PROJECT</div>
+        <div class="product-actions" data-anim="fade-up">
+          <button class="btn-buy" data-wa-product="Doctor Forest">INQUIRE</button>
+          <button class="btn-video" data-video="doctor">▶ VIDEO</button>
+          <button class="btn-inquire" data-wa-product="Doctor Forest">WHATSAPP</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══ SECTION 3 · CLIENT PATH ══ -->
+    <section id="path" class="scene" data-scene="path">
+      <div class="path-header">
+        <p class="section-label">[ Journey ]</p>
+        <h2 class="section-title">FROM CURIOSITY<br>TO COMMITMENT</h2>
+      </div>
+      <div class="path-pipeline">
+        <div class="path-node" data-anim="node-reveal">
+          <span class="node-icon">01</span>
+          <span class="node-title">GIFT BOX</span>
+          <span class="node-arrow">→</span>
+        </div>
+        <div class="path-node" data-anim="node-reveal">
+          <span class="node-icon">02</span>
+          <span class="node-title">DESK</span>
+          <span class="node-arrow">→</span>
+        </div>
+        <div class="path-node" data-anim="node-reveal">
+          <span class="node-icon">03</span>
+          <span class="node-title">WALL</span>
+          <span class="node-arrow">→</span>
+        </div>
+        <div class="path-node" data-anim="node-reveal">
+          <span class="node-icon">04</span>
+          <span class="node-title">DOCTOR FOREST</span>
+          <span class="node-arrow">→</span>
+        </div>
+        <div class="path-node" data-anim="node-reveal">
+          <span class="node-icon">05</span>
+          <span class="node-title">SIGNATURE SPACE</span>
+        </div>
+      </div>
+      <p class="path-note">Start with a gift. Stay for a forest.</p>
+    </section>
+
+    <!-- ══ SECTION 4 · CONTACT ══ -->
+    <section id="contact" class="scene" data-scene="contact">
+      <div class="terminal-container">
+        <div class="terminal-header">
+          <span class="terminal-dot red"></span>
+          <span class="terminal-dot yellow"></span>
+          <span class="terminal-dot green"></span>
+          <span class="terminal-title">hk-minijungle — terminal</span>
+        </div>
+        <div class="terminal-body">
+          <p class="terminal-line"><span class="prompt">$</span> initiate_connection --mode=contact</p>
+          <p class="terminal-line output">Initializing secure channel...</p>
+          <p class="terminal-line output">Channel open. Awaiting input.</p>
+          <p class="terminal-line prompt-line"><span class="prompt">&gt;</span> <span class="cursor-blink">█</span></p>
+        </div>
+      </div>
+      <div class="contact-links">
+        <a href="https://wa.me/85212345678?text=Hi%20HK%20MiniJungle%20—%20I'd%20like%20to%20know%20more" class="contact-link wa" target="_blank" rel="noopener">
+          <span class="contact-icon">[+]</span>
+          <span>WhatsApp</span>
+        </a>
+        <a href="https://instagram.com/hkminijungle" class="contact-link ig" target="_blank" rel="noopener">
+          <span class="contact-icon">[@]</span>
+          <span>Instagram</span>
+        </a>
+        <a href="mailto:hello@hk-minijungle.com" class="contact-link em">
+          <span class="contact-icon">[→]</span>
+          <span>Email</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ══ FOOTER ══ -->
+    <footer id="footer">
+      <div class="footer-top">
+        <span>HK MiniJungle</span>
+        <span class="footer-dot">©</span>
+        <span>2026</span>
+      </div>
+      <p class="footer-tagline">Bringing a Mini Jungle into Every Urban Space.</p>
+    </footer>
+
+  </main>
+
+  <!-- ══ VIDEO MODAL ══ -->
+  <div id="video-modal" class="video-modal hidden">
+    <div class="video-backdrop"></div>
+    <div class="video-modal-box">
+      <button class="video-close">&times;</button>
+      <!-- YouTube fallback -->
+      <div id="video-iframe-wrap" class="video-container hidden">
+        <iframe id="video-frame" src="" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+      <!-- Local MP4 — your video files go here -->
+      <div id="video-local-wrap" class="video-container hidden">
+        <video id="video-local" src="" controls playsinline></video>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SCRIPTS ══ -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+node_modules/
+.env.local
+*.log
+data/*.sqlite
+.DS_Store
+_extract.cjs
+extract-pdf.mjs
