@@ -531,42 +531,46 @@ function initInlineVideos() {
     }, { threshold: 0.3 }).observe(section);
   });
 
-  // ── Brand video play/pause button ──
-  const brandVideo = document.getElementById('brandVideo');
-  const brandBtn   = document.getElementById('brandVideoBtn');
+  // ── Brand video play/pause button + text fade ──
+  const brandVideo  = document.getElementById('brandVideo');
+  const brandBtn    = document.getElementById('brandVideoBtn');
+  const brandOverlay = document.querySelector('.brand-video-overlay');
   if (brandVideo && brandBtn) {
+
+    // Text hides when playing, shows when paused
+    function hideOverlay() {
+      if (brandOverlay) gsap.to(brandOverlay, { opacity: 0, duration: 0.5, ease: 'power2.out' });
+      brandBtn.classList.remove('paused');
+    }
+    function showOverlay() {
+      if (brandOverlay) gsap.to(brandOverlay, { opacity: 1, duration: 0.5, ease: 'power2.out' });
+      brandBtn.classList.add('paused');
+    }
 
     brandBtn.addEventListener('click', () => {
       if (brandVideo.paused) {
-        // Try to play — may need to reload if src failed
         const playPromise = brandVideo.play();
         if (playPromise) {
-          playPromise.then(() => {
-            brandBtn.classList.remove('paused');
-          }).catch(() => {
-            // Reload and retry
+          playPromise.then(() => hideOverlay()).catch(() => {
             brandVideo.load();
-            brandVideo.play().then(() => {
-              brandBtn.classList.remove('paused');
-            }).catch(() => {});
+            brandVideo.play().then(() => hideOverlay()).catch(() => {});
           });
         }
       } else {
         brandVideo.pause();
-        brandBtn.classList.add('paused');
+        showOverlay();
       }
     });
 
-    // Sync button with actual video state
-    brandVideo.addEventListener('play',  () => brandBtn.classList.remove('paused'));
-    brandVideo.addEventListener('pause', () => brandBtn.classList.add('paused'));
-    brandVideo.addEventListener('ended', () => brandBtn.classList.add('paused'));
+    brandVideo.addEventListener('play',  () => hideOverlay());
+    brandVideo.addEventListener('pause', () => showOverlay());
+    brandVideo.addEventListener('ended', () => showOverlay());
 
-    // Initialize: if video is already playing (autoplay worked), show play icon
+    // Init state
     if (!brandVideo.paused) {
-      brandBtn.classList.remove('paused');
+      hideOverlay();
     } else {
-      brandBtn.classList.add('paused');
+      showOverlay();
     }
   }
 }
