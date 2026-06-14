@@ -535,22 +535,39 @@ function initInlineVideos() {
   const brandVideo = document.getElementById('brandVideo');
   const brandBtn   = document.getElementById('brandVideoBtn');
   if (brandVideo && brandBtn) {
-    let isPaused = false;
 
     brandBtn.addEventListener('click', () => {
-      if (isPaused) {
-        brandVideo.play().catch(() => {});
-        brandBtn.classList.remove('paused');
+      if (brandVideo.paused) {
+        // Try to play — may need to reload if src failed
+        const playPromise = brandVideo.play();
+        if (playPromise) {
+          playPromise.then(() => {
+            brandBtn.classList.remove('paused');
+          }).catch(() => {
+            // Reload and retry
+            brandVideo.load();
+            brandVideo.play().then(() => {
+              brandBtn.classList.remove('paused');
+            }).catch(() => {});
+          });
+        }
       } else {
         brandVideo.pause();
         brandBtn.classList.add('paused');
       }
-      isPaused = !isPaused;
     });
 
-    // Sync button state when video plays/pauses externally
-    brandVideo.addEventListener('play',  () => { brandBtn.classList.remove('paused'); isPaused = false; });
-    brandVideo.addEventListener('pause', () => { brandBtn.classList.add('paused');    isPaused = true;  });
+    // Sync button with actual video state
+    brandVideo.addEventListener('play',  () => brandBtn.classList.remove('paused'));
+    brandVideo.addEventListener('pause', () => brandBtn.classList.add('paused'));
+    brandVideo.addEventListener('ended', () => brandBtn.classList.add('paused'));
+
+    // Initialize: if video is already playing (autoplay worked), show play icon
+    if (!brandVideo.paused) {
+      brandBtn.classList.remove('paused');
+    } else {
+      brandBtn.classList.add('paused');
+    }
   }
 }
 
