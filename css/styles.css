@@ -358,9 +358,10 @@ img { display: block; max-width: 100%; }
 
 .variant-img {
   width: 100%;
-  aspect-ratio: 4/3;
+  height: 280px;
   background-size: cover;
   background-position: center;
+  flex-shrink: 0;
 }
 
 .variant-name {
