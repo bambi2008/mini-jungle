@@ -205,6 +205,43 @@ img { display: block; max-width: 100%; }
   letter-spacing: 0.08em;
 }
 
+/* Play/Pause button */
+.brand-video-play-btn {
+  position: absolute;
+  bottom: 3rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.4);
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.brand-video-play-btn:hover {
+  border-color: var(--accent);
+  background: rgba(0,0,0,0.7);
+}
+
+.brand-video-play-btn .play-icon,
+.brand-video-play-btn .pause-icon {
+  font-size: 1rem;
+  color: var(--white);
+  line-height: 1;
+}
+
+.brand-video-play-btn .pause-icon { display: none; }
+
+.brand-video-play-btn.paused .play-icon { display: none; }
+.brand-video-play-btn.paused .pause-icon { display: block; }
+
 /* ═══════════════ PRODUCT SECTIONS ═══════════════ */
 .product-section {
   min-height: 100vh;

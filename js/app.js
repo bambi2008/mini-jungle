@@ -517,19 +517,41 @@ function initInlineVideos() {
     video.loop = true;
 
     // Play when section enters viewport, pause when not
-    const section = video.closest('.product-section');
+    const section = video.closest('.product-section, .brand-video-section');
     if (!section) return;
 
     new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          video.play().catch(() => {}); // ignore if no local file
+          video.play().catch(() => {});
         } else {
           video.pause();
         }
       });
     }, { threshold: 0.3 }).observe(section);
   });
+
+  // ── Brand video play/pause button ──
+  const brandVideo = document.getElementById('brandVideo');
+  const brandBtn   = document.getElementById('brandVideoBtn');
+  if (brandVideo && brandBtn) {
+    let isPaused = false;
+
+    brandBtn.addEventListener('click', () => {
+      if (isPaused) {
+        brandVideo.play().catch(() => {});
+        brandBtn.classList.remove('paused');
+      } else {
+        brandVideo.pause();
+        brandBtn.classList.add('paused');
+      }
+      isPaused = !isPaused;
+    });
+
+    // Sync button state when video plays/pauses externally
+    brandVideo.addEventListener('play',  () => { brandBtn.classList.remove('paused'); isPaused = false; });
+    brandVideo.addEventListener('pause', () => { brandBtn.classList.add('paused');    isPaused = true;  });
+  }
 }
 
 // ═════════════════════════════════════════════════════════
