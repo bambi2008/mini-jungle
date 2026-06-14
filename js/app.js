@@ -17,55 +17,73 @@ let isMobile = window.innerWidth < 768;
 let particleCount = isMobile ? 800 : 3000;
 
 // ═════════════════════════════════════════════════════════
-// THREE.JS — MULTI-LAYER PARTICLE FOREST
+// THREE.JS — ENHANCED PARTICLE FOREST (5 layers + light rays)
 // ═════════════════════════════════════════════════════════
 function initThreeJS() {
   const canvas = document.getElementById('bg-canvas');
   scene  = new THREE.Scene();
 
   camera = new THREE.PerspectiveCamera(
-    60,
+    55,
     window.innerWidth / window.innerHeight,
     0.5,
     100
   );
-  camera.position.set(0, 0, 20);
+  camera.position.set(0, 0, 18);
 
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-  // Fog — creates the "deep forest" depth
-  scene.fog = new THREE.FogExp2('#050505', 0.0004);
+  // Deeper fog for more atmosphere
+  scene.fog = new THREE.FogExp2('#050505', 0.00035);
 
-  // ── Three depth layers ──
+  // ── 5 particle layers: deep → mid → near → core → streaks ──
   const layerDefs = [
+    // 1. Deep background — large, slow, heavily fogged
     {
       label: 'deep',
-      count: Math.floor(particleCount * 0.15),
-      size: 0.14,
-      zRange: [-35, -50],
-      speed: 0.03,
-      color: '#1B3B2B',
-      opacity: 0.7,
+      count: Math.floor(particleCount * 0.12),
+      size: 0.18,
+      zRange: [-40, -55],
+      speed: 0.025,
+      color: '#0F2A1A',
+      opacity: 0.6,
+      mouseInfluence: 0.3,
     },
+    // 2. Mid layer — medium particles
     {
       label: 'mid',
-      count: Math.floor(particleCount * 0.45),
-      size: 0.07,
-      zRange: [-12, -25],
-      speed: 0.06,
-      color: '#3D6B4F',
+      count: Math.floor(particleCount * 0.38),
+      size: 0.08,
+      zRange: [-15, -28],
+      speed: 0.05,
+      color: '#2D5A3D',
       opacity: 0.55,
+      mouseInfluence: 0.6,
     },
+    // 3. Near layer — smaller, faster, brighter
     {
       label: 'near',
-      count: Math.floor(particleCount * 0.40),
-      size: 0.035,
-      zRange: [-3, -10],
-      speed: 0.10,
-      color: '#7BA884',
-      opacity: 0.45,
+      count: Math.floor(particleCount * 0.30),
+      size: 0.04,
+      zRange: [-4, -12],
+      speed: 0.09,
+      color: '#5A9A6A',
+      opacity: 0.5,
+      mouseInfluence: 1.0,
+    },
+    // 4. Core — bright highlight particles near the center
+    {
+      label: 'core',
+      count: Math.floor(particleCount * 0.20),
+      size: 0.025,
+      zRange: [-1, -5],
+      speed: 0.14,
+      color: '#9FD4AA',
+      opacity: 0.65,
+      mouseInfluence: 1.8,
+      centerCluster: true,
     },
   ];
 
@@ -75,8 +93,15 @@ function initThreeJS() {
     const originals = new Float32Array(def.count * 3);
 
     for (let i = 0; i < def.count; i++) {
-      const px = (Math.random() - 0.5) * 50;
-      const py = (Math.random() - 0.5) * 40;
+      let px, py;
+      if (def.centerCluster) {
+        // Cluster near center with gaussian-like distribution
+        px = (Math.random() + Math.random() + Math.random()) / 3 * 20 - 10;
+        py = (Math.random() + Math.random() + Math.random()) / 3 * 16 - 8;
+      } else {
+        px = (Math.random() - 0.5) * 50;
+        py = (Math.random() - 0.5) * 40;
+      }
       const pz = def.zRange[0] + Math.random() * (def.zRange[1] - def.zRange[0]);
 
       positions[i * 3]     = px;
@@ -90,17 +115,18 @@ function initThreeJS() {
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
-    // Soft radial particle texture
+    // Particle texture
     const texCanvas = document.createElement('canvas');
-    texCanvas.width  = 32;
-    texCanvas.height = 32;
+    texCanvas.width  = 48;
+    texCanvas.height = 48;
     const ctx = texCanvas.getContext('2d');
-    const grad = ctx.createRadialGradient(16, 16, 0, 16, 16, 16);
+    const grad = ctx.createRadialGradient(24, 24, 0, 24, 24, 24);
     grad.addColorStop(0, def.color);
-    grad.addColorStop(0.25, def.color);
+    grad.addColorStop(0.15, def.color);
+    grad.addColorStop(0.5, def.color + '88');
     grad.addColorStop(1, 'transparent');
     ctx.fillStyle = grad;
-    ctx.fillRect(0, 0, 32, 32);
+    ctx.fillRect(0, 0, 48, 48);
     const texture = new THREE.CanvasTexture(texCanvas);
 
     const material = new THREE.PointsMaterial({
@@ -122,27 +148,82 @@ function initThreeJS() {
     scene.add(points);
     particleLayers.push(points);
   });
+
+  // ── 5. Light rays — vertical elongated particles ──
+  const rayCount = isMobile ? 40 : 120;
+  const rayGeo = new THREE.BufferGeometry();
+  const rayPositions = new Float32Array(rayCount * 3);
+  const rayOriginals = new Float32Array(rayCount * 3);
+
+  for (let i = 0; i < rayCount; i++) {
+    const px = (Math.random() - 0.5) * 30;
+    const py = (Math.random() - 0.5) * 20;
+    const pz = -3 + Math.random() * -8;
+    rayPositions[i * 3] = px;
+    rayPositions[i * 3 + 1] = py;
+    rayPositions[i * 3 + 2] = pz;
+    rayOriginals[i * 3] = px;
+    rayOriginals[i * 3 + 1] = py;
+    rayOriginals[i * 3 + 2] = pz;
+  }
+
+  rayGeo.setAttribute('position', new THREE.BufferAttribute(rayPositions, 3));
+
+  // Create vertical streak texture
+  const streakCanvas = document.createElement('canvas');
+  streakCanvas.width  = 8;
+  streakCanvas.height = 128;
+  const sctx = streakCanvas.getContext('2d');
+  const sgrad = sctx.createLinearGradient(0, 0, 0, 128);
+  sgrad.addColorStop(0, 'transparent');
+  sgrad.addColorStop(0.3, '#8FBF9A44');
+  sgrad.addColorStop(0.5, '#8FBF9A88');
+  sgrad.addColorStop(0.7, '#8FBF9A44');
+  sgrad.addColorStop(1, 'transparent');
+  sctx.fillStyle = sgrad;
+  sctx.fillRect(0, 0, 8, 128);
+  const streakTex = new THREE.CanvasTexture(streakCanvas);
+
+  const rayMat = new THREE.PointsMaterial({
+    size: 0.35,
+    map: streakTex,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+    opacity: 0.25,
+    transparent: true,
+  });
+
+  const rays = new THREE.Points(rayGeo, rayMat);
+  rays.userData = {
+    def: { label: 'rays', speed: 0.04, mouseInfluence: 1.2, opacity: 0.25 },
+    originals: rayOriginals,
+    phaseOffset: 0,
+  };
+  scene.add(rays);
+  particleLayers.push(rays);
 }
 
 function animateThreeJS(time) {
   requestAnimationFrame(animateThreeJS);
 
   // Smooth mouse & scroll follow
-  mouse.tx  += (mouse.x - mouse.tx)   * 0.04;
-  mouse.ty  += (mouse.y - mouse.ty)   * 0.04;
-  scroll.ty += (scroll.y - scroll.ty) * 0.07;
+  mouse.tx  += (mouse.x - mouse.tx)   * 0.035;
+  mouse.ty  += (mouse.y - mouse.ty)   * 0.035;
+  scroll.ty += (scroll.y - scroll.ty) * 0.06;
 
-  // Camera drift
-  camera.position.x += (mouse.tx * 3.0 - camera.position.x) * 0.03;
-  camera.position.y += (-mouse.ty * 2.0 - scroll.ty * 0.18 - camera.position.y) * 0.03;
-  camera.lookAt(0, -scroll.ty * 0.1, -10);
+  // Camera drift — stronger mouse response
+  camera.position.x += (mouse.tx * 4.5 - camera.position.x) * 0.025;
+  camera.position.y += (-mouse.ty * 3.0 - scroll.ty * 0.18 - camera.position.y) * 0.025;
+  camera.lookAt(0, -scroll.ty * 0.12, -8);
 
   // Animate particle layers
   particleLayers.forEach((layer) => {
     const positions = layer.geometry.attributes.position.array;
     const originals = layer.userData.originals;
+    const def       = layer.userData.def;
     const count     = positions.length / 3;
-    const speed     = layer.userData.def.speed;
+    const speed     = def.speed;
+    const mouseInf  = def.mouseInfluence || 0.3;
     const phaseBase = layer.userData.phaseOffset;
 
     for (let i = 0; i < count; i++) {
@@ -151,16 +232,19 @@ function animateThreeJS(time) {
       const oy    = originals[idx + 1];
       const phase = i * 0.013 + time * 0.00015 * speed + phaseBase;
 
-      positions[idx]     = ox + Math.sin(phase) * speed * 1.2;
-      positions[idx + 1] = oy + Math.cos(phase * 0.7) * speed * 0.9;
-      // z stays anchored (depth is fixed)
+      // Natural drift + mouse parallax
+      const mx = mouse.tx * mouseInf * 1.5;
+      const my = mouse.ty * mouseInf * 1.5;
+
+      positions[idx]     = ox + Math.sin(phase) * speed * 1.3 + mx;
+      positions[idx + 1] = oy + Math.cos(phase * 0.7) * speed * 1.0 + my;
     }
 
     layer.geometry.attributes.position.needsUpdate = true;
 
-    // Subtle opacity breathing
-    const baseOp = layer.userData.def.opacity;
-    layer.material.opacity = baseOp + Math.sin(time * 0.0004 + layer.userData.phaseOffset) * 0.04;
+    // Opacity breathing
+    const baseOp = def.opacity;
+    layer.material.opacity = baseOp + Math.sin(time * 0.0004 + phaseBase) * 0.05;
   });
 
   renderer.render(scene, camera);
@@ -480,6 +564,114 @@ function initWhatsAppButtons() {
 }
 
 // ═════════════════════════════════════════════════════════
+// CUSTOM CURSOR
+// ═════════════════════════════════════════════════════════
+const cursor = { dot: null, ring: null, hover: false };
+
+function initCursor() {
+  if (isMobile) return;
+
+  // Create cursor elements
+  cursor.dot = document.createElement('div');
+  cursor.dot.id = 'cursor-dot';
+  cursor.ring = document.createElement('div');
+  cursor.ring.id = 'cursor-ring';
+
+  document.body.appendChild(cursor.dot);
+  document.body.appendChild(cursor.ring);
+
+  // Track mouse for cursor
+  document.addEventListener('mousemove', (e) => {
+    gsap.to(cursor.dot, { x: e.clientX, y: e.clientY, duration: 0.08, ease: 'power2.out' });
+    gsap.to(cursor.ring, { x: e.clientX, y: e.clientY, duration: 0.25, ease: 'power2.out' });
+  });
+
+  // Hover effect on interactive elements
+  const hoverTargets = document.querySelectorAll('a, button, .btn-buy, .btn-video, .btn-inquire, .contact-link, .path-node');
+  hoverTargets.forEach((el) => {
+    el.addEventListener('mouseenter', () => {
+      cursor.hover = true;
+      gsap.to(cursor.ring, { scale: 2.5, borderColor: 'rgba(143,191,154,0.6)', duration: 0.3 });
+      gsap.to(cursor.dot, { scale: 0.5, duration: 0.3 });
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.hover = false;
+      gsap.to(cursor.ring, { scale: 1, borderColor: 'rgba(143,191,154,0.25)', duration: 0.3 });
+      gsap.to(cursor.dot, { scale: 1, duration: 0.3 });
+    });
+  });
+
+  // Hide on leaving window
+  document.addEventListener('mouseleave', () => {
+    gsap.to([cursor.dot, cursor.ring], { opacity: 0, duration: 0.2 });
+  });
+  document.addEventListener('mouseenter', () => {
+    gsap.to([cursor.dot, cursor.ring], { opacity: 1, duration: 0.2 });
+  });
+}
+
+// ═════════════════════════════════════════════════════════
+// SIDE NAVIGATION DOTS
+// ═════════════════════════════════════════════════════════
+function initNavDots() {
+  const sections = document.querySelectorAll('.scene, .product-section');
+  if (sections.length === 0) return;
+
+  // Create nav container
+  const nav = document.createElement('nav');
+  nav.id = 'side-nav';
+
+  sections.forEach((section, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'nav-dot';
+    dot.setAttribute('aria-label', section.id || `section-${i}`);
+    dot.addEventListener('click', () => {
+      if (lenis) {
+        lenis.scrollTo(section);
+      } else {
+        section.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+    nav.appendChild(dot);
+  });
+
+  document.body.appendChild(nav);
+
+  // Track active section
+  const dots = nav.querySelectorAll('.nav-dot');
+  sections.forEach((section, i) => {
+    ScrollTrigger.create({
+      trigger: section,
+      start: 'top 40%',
+      end: 'bottom 40%',
+      onEnter:  () => { dots.forEach(d => d.classList.remove('active')); dots[i]?.classList.add('active'); },
+      onEnterBack: () => { dots.forEach(d => d.classList.remove('active')); dots[i]?.classList.add('active'); },
+    });
+  });
+}
+
+// ═════════════════════════════════════════════════════════
+// PRODUCT HOVER EFFECTS
+// ═════════════════════════════════════════════════════════
+function initProductHover() {
+  document.querySelectorAll('.product-section').forEach((section) => {
+    const bg = section.querySelector('.product-bg-image');
+    const overlay = section.querySelector('.product-overlay');
+    if (!bg || !overlay) return;
+
+    section.addEventListener('mouseenter', () => {
+      gsap.to(bg, { scale: 1.05, opacity: 0.45, duration: 0.8, ease: 'power2.out' });
+      gsap.to(overlay, { x: 10, duration: 0.6, ease: 'power2.out' });
+    });
+
+    section.addEventListener('mouseleave', () => {
+      gsap.to(bg, { scale: 1, opacity: 0.35, duration: 0.8, ease: 'power2.out' });
+      gsap.to(overlay, { x: 0, duration: 0.6, ease: 'power2.out' });
+    });
+  });
+}
+
+// ═════════════════════════════════════════════════════════
 // BOOT
 // ═════════════════════════════════════════════════════════
 async function boot() {
@@ -490,6 +682,9 @@ async function boot() {
   initScrollAnimations();
   initVideoButtons();
   initWhatsAppButtons();
+  initCursor();
+  initNavDots();
+  initProductHover();
 
   window.addEventListener('resize', onResize);
   window.addEventListener('mousemove', onMouseMove);
