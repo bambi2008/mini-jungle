@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account — HK MiniJungle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .account-page { min-height:100vh;background:#050505;display:flex;align-items:center;justify-content:center;padding:2rem; }
+    .account-card { width:100%;max-width:440px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:2.5rem 2rem; }
+    .account-back { font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim);margin-bottom:2rem;display:inline-block;transition:color 0.2s; }
+    .account-back:hover { color:var(--accent); }
+    .account-title { font-size:1.4rem;font-weight:700;color:var(--white);letter-spacing:-0.02em;margin-bottom:0.3rem; }
+    .account-sub { font-size:0.8rem;color:var(--text-dim);margin-bottom:2rem; }
+    .tab-row { display:flex;gap:0;margin-bottom:2rem;border-bottom:1px solid rgba(255,255,255,0.06); }
+    .tab-btn { flex:1;padding:0.8rem 0;font-size:0.78rem;letter-spacing:0.12em;text-transform:uppercase;font-family:var(--font-mono);background:none;border:none;color:var(--text-dim);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s; }
+    .tab-btn.active { color:var(--accent);border-bottom-color:var(--accent); }
+    .form-panel { display:none; }
+    .form-panel.active { display:block; }
+    .fg { margin-bottom:1.2rem; }
+    .fg label { display:block;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.4rem; }
+    .fg input { width:100%;padding:0.75rem 0.8rem;background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:3px;color:var(--text);font-family:var(--font-mono);font-size:0.85rem;transition:border-color 0.2s; }
+    .fg input:focus { outline:none;border-color:var(--accent); }
+    .btn-primary { width:100%;padding:0.9rem;font-size:0.82rem;letter-spacing:0.12em;text-transform:uppercase;font-weight:600;background:var(--moss);color:var(--white);border:1px solid var(--moss-lit);font-family:var(--font-mono);cursor:pointer;transition:all 0.25s;border-radius:4px; }
+    .btn-primary:hover { background:var(--moss-lit); }
+    .msg { font-size:0.75rem;margin-top:0.8rem;text-align:center;min-height:1.2em; }
+    .msg.error { color:#E05555; }
+    .msg.success { color:var(--accent); }
+    .redirect-note { font-size:0.7rem;color:var(--text-dim);text-align:center;margin-top:1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="account-page">
+    <div class="account-card">
+      <a href="/" class="account-back">&larr; Back to HK MiniJungle</a>
+      <h1 class="account-title">Account</h1>
+      <p class="account-sub">Register or login to continue to checkout.</p>
+
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="register">Register</button>
+        <button class="tab-btn" data-tab="login">Login</button>
+      </div>
+
+      <div id="register-panel" class="form-panel active">
+        <form id="registerForm">
+          <div class="fg"><label>Full Name</label><input name="name" type="text" placeholder="Your name" required></div>
+          <div class="fg"><label>Email</label><input name="email" type="email" placeholder="you@example.com" required></div>
+          <div class="fg"><label>Phone</label><input name="phone" type="tel" placeholder="+852"></div>
+          <div class="fg"><label>Password</label><input name="password" type="password" placeholder="Min 6 characters" minlength="6" required></div>
+          <button type="submit" class="btn-primary">Create Account</button>
+        </form>
+        <p class="msg" id="regMsg"></p>
+      </div>
+
+      <div id="login-panel" class="form-panel">
+        <form id="loginForm">
+          <div class="fg"><label>Email</label><input name="email" type="email" placeholder="you@example.com" required></div>
+          <div class="fg"><label>Password</label><input name="password" type="password" required></div>
+          <button type="submit" class="btn-primary">Sign In</button>
+        </form>
+        <p class="msg" id="loginMsg"></p>
+      </div>
+
+      <p class="redirect-note" id="redirectNote"></p>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api/customers';
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get('redirect') || '/';
+
+    if (redirect !== '/') {
+      document.getElementById('redirectNote').textContent =
+        'You will be redirected to checkout after login.';
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.form-panel').forEach(p => p.classList.remove('active'));
+        document.getElementById(btn.dataset.tab + '-panel').classList.add('active');
+      });
+    });
+
+    // Register
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
+      const msg = document.getElementById('regMsg');
+      msg.className = 'msg';
+      msg.textContent = 'Creating account...';
+
+      try {
+        const res = await fetch(API + '/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (res.ok) {
+          localStorage.setItem('mj_token', json.token);
+          localStorage.setItem('mj_customer', JSON.stringify(json.customer));
+          msg.className = 'msg success';
+          msg.textContent = 'Account created! Redirecting...';
+          setTimeout(() => { window.location.href = redirect; }, 800);
+        } else {
+          msg.className = 'msg error';
+          msg.textContent = json.error || 'Registration failed.';
+        }
+      } catch {
+        msg.className = 'msg error';
+        msg.textContent = 'Server error. Try again.';
+      }
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = Object.fromEntries(new FormData(e.target));
+      const msg = document.getElementById('loginMsg');
+      msg.className = 'msg';
+      msg.textContent = 'Signing in...';
+
+      try {
+        const res = await fetch(API + '/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+        const json = await res.json();
+        if (res.ok) {
+          localStorage.setItem('mj_token', json.token);
+          localStorage.setItem('mj_customer', JSON.stringify(json.customer));
+          msg.className = 'msg success';
+          msg.textContent = 'Signed in! Redirecting...';
+          setTimeout(() => { window.location.href = redirect; }, 800);
+        } else {
+          msg.className = 'msg error';
+          msg.textContent = json.error || 'Login failed.';
+        }
+      } catch {
+        msg.className = 'msg error';
+        msg.textContent = 'Server error. Try again.';
+      }
+    });
+  </script>
+</body>
+</html>

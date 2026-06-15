@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin — HK MiniJungle</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#050505;--card:#0A0A0A;--text:#E8E4DD;--dim:#8A857D;--green:#6A9A7A;--accent:#8FBF9A;--red:#D95555; }
+    * { margin:0;padding:0;box-sizing:border-box; }
+    body { background:var(--bg);color:var(--text);font-family:'JetBrains Mono',monospace;padding:2rem; }
+    .admin-header { display:flex;justify-content:space-between;align-items:center;margin-bottom:2rem;max-width:1200px;margin-inline:auto; }
+    .admin-header h1 { font-size:1.4rem;font-weight:700; }
+    .admin-header a { font-size:0.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:0.1em;text-decoration:none; }
+    .admin-header a:hover { color:var(--accent); }
+    .stats-grid { display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;max-width:1200px;margin-inline:auto;margin-bottom:2rem; }
+    .stat-card { background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:4px;padding:1.5rem;text-align:center; }
+    .stat-value { font-size:2rem;font-weight:700;color:var(--accent); }
+    .stat-label { font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--dim);margin-top:0.3rem; }
+    .table-wrap { max-width:1200px;margin-inline:auto;background:var(--card);border:1px solid rgba(255,255,255,0.06);border-radius:4px;overflow-x:auto; }
+    table { width:100%;border-collapse:collapse;font-size:0.78rem; }
+    th { text-align:left;padding:0.9rem 1rem;font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;color:var(--dim);border-bottom:1px solid rgba(255,255,255,0.06); }
+    td { padding:0.75rem 1rem;border-bottom:1px solid rgba(255,255,255,0.03); }
+    .badge { display:inline-block;padding:0.2rem 0.5rem;border-radius:2px;font-size:0.65rem; }
+    .badge-order { background:rgba(143,191,154,0.12);color:var(--accent); }
+    .badge-zero { background:rgba(255,255,255,0.04);color:var(--dim); }
+    .loading { text-align:center;padding:3rem;color:var(--dim); }
+    .refresh { font-size:0.65rem;color:var(--dim);cursor:pointer;background:none;border:1px solid rgba(255,255,255,0.1);padding:0.4rem 0.8rem;border-radius:3px;font-family:inherit; }
+    .refresh:hover { border-color:var(--accent);color:var(--accent); }
+  </style>
+</head>
+<body>
+  <div class="admin-header">
+    <div>
+      <h1>Admin / Customers</h1>
+    </div>
+    <div style="display:flex;gap:1rem;align-items:center;">
+      <button class="refresh" onclick="loadStats()">REFRESH</button>
+      <a href="/">Back to site</a>
+    </div>
+  </div>
+
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-card"><div class="stat-value" id="sTotal">-</div><div class="stat-label">Total Customers</div></div>
+    <div class="stat-card"><div class="stat-value" id="sWeek">-</div><div class="stat-label">New This Week</div></div>
+    <div class="stat-card"><div class="stat-value" id="sMonth">-</div><div class="stat-label">New This Month</div></div>
+    <div class="stat-card"><div class="stat-value" id="sOrders">-</div><div class="stat-label">Total Orders</div></div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Name</th><th>Email</th><th>Phone</th><th>Registered</th><th>Orders</th></tr>
+      </thead>
+      <tbody id="custTable"><tr><td colspan="5" class="loading">Loading...</td></tr></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/customers/stats');
+        const data = await res.json();
+        document.getElementById('sTotal').textContent = data.total;
+        document.getElementById('sWeek').textContent = data.thisWeek;
+        document.getElementById('sMonth').textContent = data.thisMonth;
+        document.getElementById('sOrders').textContent = data.totalOrders;
+
+        const tbody = document.getElementById('custTable');
+        if (data.customers.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="5" class="loading">No customers yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = data.customers.map(c => `
+          <tr>
+            <td>${escape(c.name)}</td>
+            <td>${escape(c.email)}</td>
+            <td>${escape(c.phone || '-')}</td>
+            <td>${new Date(c.createdAt).toLocaleDateString()}</td>
+            <td><span class="badge ${c.orderCount > 0 ? 'badge-order' : 'badge-zero'}">${c.orderCount} orders</span></td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        document.getElementById('custTable').innerHTML = '<tr><td colspan="5" class="loading">Failed to load. Is server running?</td></tr>';
+      }
+    }
+
+    function escape(s) {
+      const d = document.createElement('div');
+      d.textContent = s;
+      return d.innerHTML;
+    }
+
+    loadStats();
+  </script>
+</body>
+</html>

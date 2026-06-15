@@ -135,6 +135,7 @@
     <div class="checkout-card">
       <a href="/" class="checkout-back">&larr; Back to HK MiniJungle</a>
       <h1 class="checkout-title">Checkout</h1>
+      <p class="checkout-sub" style="font-size:0.72rem;color:var(--text-dim);margin-bottom:1rem;"></p>
       <div class="checkout-product" id="checkoutProduct">Loading...</div>
 
       <form id="paymentForm">
@@ -180,17 +181,41 @@
   </div>
 
   <script>
+    // Check login status
+    const token = localStorage.getItem('mj_token');
+    const customer = JSON.parse(localStorage.getItem('mj_customer') || 'null');
+
+    if (!token || !customer) {
+      // Not logged in — redirect to account page
+      const returnUrl = encodeURIComponent(window.location.href);
+      window.location.href = '/account.html?redirect=' + returnUrl;
+    }
+
+    // Show customer info
+    if (customer) {
+      document.querySelector('.checkout-sub').textContent = 'Logged in as ' + customer.email;
+    }
+
     // Read product from URL
     const params = new URLSearchParams(window.location.search);
     const product = params.get('product') || 'HK MiniJungle';
-    const variant = params.get('variant') || '';
     const price   = params.get('price') || '---';
-    document.getElementById('checkoutProduct').textContent = product + (variant ? ' — ' + variant : '');
+    document.getElementById('checkoutProduct').textContent = product;
     document.getElementById('checkoutAmount').textContent = 'HK$' + price;
 
-    document.getElementById('paymentForm').addEventListener('submit', (e) => {
+    document.getElementById('paymentForm').addEventListener('submit', async (e) => {
       e.preventDefault();
-      alert('Order placed! (Test mode — no charge)\n\nProduct: ' + product + '\nWe will contact you shortly via WhatsApp.');
+
+      // Record order
+      try {
+        await fetch('/api/customers/order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, product, price }),
+        });
+      } catch {}
+
+      alert('Order placed! (Test mode — no charge)\n\nProduct: ' + product + '\nWe will contact you shortly.');
       window.location.href = '/';
     });
   </script>
