@@ -1,0 +1,11 @@
+[
+  {
+    "id": "d719950e-e7b9-489a-8e4d-5b3217ced06b",
+    "name": "Test",
+    "email": "test@test.com",
+    "password": "123456",
+    "phone": "",
+    "createdAt": "2026-06-15T03:00:35.954Z",
+    "orders": []
+  }
+]
