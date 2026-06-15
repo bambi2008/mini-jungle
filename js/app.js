@@ -14,12 +14,32 @@ let particleLayers = [];
 const mouse  = { x: 0, y: 0, tx: 0, ty: 0 };
 const scroll = { y: 0, ty: 0 };
 let isMobile = window.innerWidth < 768;
-let particleCount = isMobile ? 800 : 3000;
+let perfTier = 'high'; // 'low' | 'mid' | 'high'
+
+function detectPerfTier() {
+  // Check for low-end devices
+  const mem = navigator.deviceMemory || 4; // GB
+  const cores = navigator.hardwareConcurrency || 4;
+  if (isMobile && mem <= 2) perfTier = 'low';
+  else if (isMobile || mem <= 4 || cores <= 4) perfTier = 'mid';
+  else perfTier = 'high';
+}
+
+function getParticleCount() {
+  if (perfTier === 'low') return 400;
+  if (perfTier === 'mid') return 1200;
+  return 3000;
+}
 
 // ═════════════════════════════════════════════════════════
 // THREE.JS — ENHANCED PARTICLE FOREST (5 layers + light rays)
 // ═════════════════════════════════════════════════════════
 function initThreeJS() {
+  detectPerfTier();
+  const particleCount = getParticleCount();
+  console.log('%c🌿 Performance tier: ' + perfTier + ' (' + particleCount + ' particles)',
+    'color:#8FBF9A;');
+
   const canvas = document.getElementById('bg-canvas');
   scene  = new THREE.Scene();
 
@@ -732,6 +752,20 @@ function initNav() {
 // ═════════════════════════════════════════════════════════
 // PAGE TRANSITIONS
 // ═════════════════════════════════════════════════════════
+function initCardBreathing() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        e.target.classList.add('in-view');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  document.querySelectorAll('.variant-card').forEach((card) => {
+    observer.observe(card);
+  });
+}
+
 function initPageTransitions() {
   const overlay = document.getElementById('page-transition');
   if (!overlay) return;
@@ -936,6 +970,7 @@ async function boot() {
   initCursor();
   initNavDots();
   initProductHover();
+  initCardBreathing();
   initNav();
   initPageTransitions();
 
