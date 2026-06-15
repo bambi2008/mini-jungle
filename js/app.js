@@ -587,13 +587,24 @@ function waURL(product, action) {
   return `https://wa.me/${WA_NUMBER}?text=${text}`;
 }
 
-function initWhatsAppButtons() {
-  // New small buy buttons on variant cards + any legacy buttons
-  document.querySelectorAll('.btn-buy-sm, .btn-buy, .btn-inquire').forEach((btn) => {
+function initPurchaseButtons() {
+  const isB2B = (section) => section && section.id === 'product-doctor';
+
+  document.querySelectorAll('.btn-buy-sm').forEach((btn) => {
     btn.addEventListener('click', () => {
+      const section = btn.closest('.product-section');
       const product = btn.dataset.waProduct || 'HK MiniJungle';
-      const action = btn.classList.contains('btn-inquire') ? 'inquire' : 'buy';
-      window.open(waURL(product, action), '_blank', 'noopener');
+      const price   = btn.dataset.price || '---';
+
+      if (isB2B(section)) {
+        // B端 → WhatsApp
+        const text = encodeURIComponent(`Hi HK MiniJungle — I'm interested in ${product}. Can you tell me more?`);
+        window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, '_blank', 'noopener');
+      } else {
+        // C端 → checkout page
+        const params = new URLSearchParams({ product, price });
+        window.location.href = `/checkout.html?${params.toString()}`;
+      }
     });
   });
 }
@@ -864,7 +875,7 @@ async function boot() {
   await initLenis();
   initScrollAnimations();
   initInlineVideos();
-  initWhatsAppButtons();
+  initPurchaseButtons();
   initCursor();
   initNavDots();
   initProductHover();
