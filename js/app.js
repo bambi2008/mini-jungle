@@ -825,7 +825,7 @@ function init3DCards() {
       const particles = new THREE.Points(pGeo, pMat);
       scene3d.add(particles);
 
-      card3DScenes.push({
+      const cardData = {
         scene: scene3d,
         camera: cam3d,
         renderer: renderer3d,
@@ -833,24 +833,44 @@ function init3DCards() {
         particles,
         el: imgEl,
         config,
-      });
+        visible: false,
+        hovered: false,
+      };
+      card3DScenes.push(cardData);
+
+      // Only render when visible in viewport
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach((e) => {
+          cardData.visible = e.isIntersecting;
+          if (!e.isIntersecting) {
+            // Clear canvas when off-screen
+            renderer3d.clear();
+          }
+        });
+      }, { threshold: 0.1, rootMargin: '200px' });
+      observer.observe(imgEl);
+
+      // Track hover
+      imgEl.addEventListener('mouseenter', () => { cardData.hovered = true; });
+      imgEl.addEventListener('mouseleave', () => { cardData.hovered = false; });
     });
   });
 }
 
 function animate3DCards(time) {
-  card3DScenes.forEach((s) => {
-    if (!s.el.closest('.product-section')?.matches(':hover')) {
-      // Off-screen or not hovered — slow auto-rotate
-      s.mesh.rotation.y += 0.004;
-      s.mesh.rotation.x += 0.001;
-    } else {
-      // Hovered — faster rotation
-      s.mesh.rotation.y += 0.012;
-    }
+  let frame = 0;
+  card3DScenes.forEach((s, i) => {
+    if (!s.visible) return;
+
+    // Skip frames for non-hovered cards — render every 2nd frame
+    if (!s.hovered && frame % 2 !== 0) return;
+
+    s.mesh.rotation.y += s.hovered ? 0.012 : 0.004;
+    s.mesh.rotation.x += s.hovered ? 0.002 : 0.001;
     s.particles.rotation.y += 0.003;
     s.renderer.render(s.scene, s.camera);
   });
+  frame++;
 }
 
 // ═════════════════════════════════════════════════════════
