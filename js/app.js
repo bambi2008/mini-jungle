@@ -697,183 +697,6 @@ function initNavDots() {
 }
 
 // ═════════════════════════════════════════════════════════
-// 3D PRODUCT CARD VIEWER
-// Replaces static variant-img with rotating 3D shapes
-// ═════════════════════════════════════════════════════════
-const card3DScenes = [];
-
-function getShapeForProduct(productId, variantIdx) {
-  // Returns geometry config based on product type
-  const configs = {
-    'signature-space': [
-      { geo: 'box', size: [1.8, 4.5, 0.3], color: '#4A7C59', label: 'Panel' },
-      { geo: 'box', size: [1.5, 3.5, 0.25], color: '#5A8A6A', label: 'Panel' },
-      { geo: 'box', size: [2.0, 2.8, 0.2], color: '#3D6B4F', label: 'Panel' },
-    ],
-    'wall': [
-      { geo: 'box', size: [3.0, 1.6, 0.15], color: '#4A7C59', label: 'Wall' },
-      { geo: 'box', size: [3.6, 1.6, 0.12], color: '#5A8A6A', label: 'Wall' },
-      { geo: 'box', size: [2.0, 1.4, 0.18], color: '#3D6B4F', label: 'Wall' },
-    ],
-    'desk': [
-      { geo: 'cube', size: 1.2, color: '#4A7C59', label: 'Desk' },
-      { geo: 'cube', size: 1.0, color: '#5A8A6A', label: 'Desk' },
-      { geo: 'cube', size: 0.85, color: '#3D6B4F', label: 'Desk' },
-    ],
-    'gift': [
-      { geo: 'gift', size: 1.0, color: '#4A7C59', label: 'Gift' },
-      { geo: 'gift', size: 0.9, color: '#5A8A6A', label: 'Gift' },
-      { geo: 'gift', size: 0.75, color: '#3D6B4F', label: 'Gift' },
-    ],
-    'doctor': [
-      { geo: 'sphere', size: 1.0, color: '#4A7C59', label: 'Abstract' },
-      { geo: 'torus', size: 0.9, color: '#5A8A6A', label: 'Abstract' },
-      { geo: 'octahedron', size: 0.95, color: '#3D6B4F', label: 'Abstract' },
-    ],
-  };
-  const variants = configs[productId] || configs['wall'];
-  return variants[variantIdx % variants.length];
-}
-
-function init3DCards() {
-  document.querySelectorAll('.product-section').forEach((section) => {
-    const productId = section.dataset.product;
-    const images = section.querySelectorAll('.variant-img');
-
-    images.forEach((imgEl, idx) => {
-      const config = getShapeForProduct(productId, idx);
-
-      // Create a small Three.js canvas inside this variant-img
-      const w = imgEl.clientWidth || 300;
-      const h = imgEl.clientHeight || 225;
-
-      const scene3d = new THREE.Scene();
-      const cam3d = new THREE.PerspectiveCamera(40, w / h, 0.1, 20);
-      cam3d.position.z = 5;
-
-      const renderer3d = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-      renderer3d.setSize(w, h, false);
-      renderer3d.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      imgEl.appendChild(renderer3d.domElement);
-      renderer3d.domElement.style.width = '100%';
-      renderer3d.domElement.style.height = '100%';
-
-      // Lighting
-      scene3d.add(new THREE.AmbientLight('#2D4A34', 1.2));
-      const key = new THREE.DirectionalLight('#8FBF9A', 1.5);
-      key.position.set(5, 3, 5);
-      scene3d.add(key);
-      const rim = new THREE.DirectionalLight('#4A7C59', 0.6);
-      rim.position.set(-3, -1, -2);
-      scene3d.add(rim);
-
-      // Geometry
-      let mesh;
-      const c = new THREE.Color(config.color);
-      const mat = new THREE.MeshStandardMaterial({
-        color: c,
-        roughness: 0.55,
-        metalness: 0.05,
-      });
-
-      switch (config.geo) {
-        case 'cube':
-          mesh = new THREE.Mesh(new THREE.BoxGeometry(config.size, config.size, config.size), mat);
-          break;
-        case 'gift': {
-          const group = new THREE.Group();
-          const body = new THREE.Mesh(new THREE.BoxGeometry(config.size, config.size * 0.7, config.size), mat);
-          const lid = new THREE.Mesh(new THREE.BoxGeometry(config.size * 1.05, config.size * 0.2, config.size * 1.05), mat);
-          lid.position.y = config.size * 0.45;
-          group.add(body);
-          group.add(lid);
-          mesh = group;
-          break;
-        }
-        case 'sphere':
-          mesh = new THREE.Mesh(new THREE.SphereGeometry(config.size, 32, 32), mat);
-          break;
-        case 'torus':
-          mesh = new THREE.Mesh(new THREE.TorusGeometry(config.size, config.size * 0.3, 16, 32), mat);
-          break;
-        case 'octahedron':
-          mesh = new THREE.Mesh(new THREE.OctahedronGeometry(config.size), mat);
-          break;
-        default: // box
-          mesh = new THREE.Mesh(new THREE.BoxGeometry(...config.size), mat);
-      }
-
-      scene3d.add(mesh);
-
-      // Subtle particles around the mesh
-      const pGeo = new THREE.BufferGeometry();
-      const pCount = 40;
-      const pPos = new Float32Array(pCount * 3);
-      for (let i = 0; i < pCount; i++) {
-        pPos[i * 3] = (Math.random() - 0.5) * 4;
-        pPos[i * 3 + 1] = (Math.random() - 0.5) * 3;
-        pPos[i * 3 + 2] = (Math.random() - 0.5) * 2;
-      }
-      pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-      const pMat = new THREE.PointsMaterial({
-        size: 0.02,
-        color: '#8FBF9A',
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        opacity: 0.5,
-      });
-      const particles = new THREE.Points(pGeo, pMat);
-      scene3d.add(particles);
-
-      const cardData = {
-        scene: scene3d,
-        camera: cam3d,
-        renderer: renderer3d,
-        mesh,
-        particles,
-        el: imgEl,
-        config,
-        visible: false,
-        hovered: false,
-      };
-      card3DScenes.push(cardData);
-
-      // Only render when visible in viewport
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((e) => {
-          cardData.visible = e.isIntersecting;
-          if (!e.isIntersecting) {
-            // Clear canvas when off-screen
-            renderer3d.clear();
-          }
-        });
-      }, { threshold: 0.1, rootMargin: '200px' });
-      observer.observe(imgEl);
-
-      // Track hover
-      imgEl.addEventListener('mouseenter', () => { cardData.hovered = true; });
-      imgEl.addEventListener('mouseleave', () => { cardData.hovered = false; });
-    });
-  });
-}
-
-function animate3DCards(time) {
-  let frame = 0;
-  card3DScenes.forEach((s, i) => {
-    if (!s.visible) return;
-
-    // Skip frames for non-hovered cards — render every 2nd frame
-    if (!s.hovered && frame % 2 !== 0) return;
-
-    s.mesh.rotation.y += s.hovered ? 0.012 : 0.004;
-    s.mesh.rotation.x += s.hovered ? 0.002 : 0.001;
-    s.particles.rotation.y += 0.003;
-    s.renderer.render(s.scene, s.camera);
-  });
-  frame++;
-}
-
-// ═════════════════════════════════════════════════════════
 // FULL-SCREEN NAVIGATION
 // ═════════════════════════════════════════════════════════
 function initNav() {
@@ -1104,14 +927,7 @@ function playIntroSound() {
 // ═════════════════════════════════════════════════════════
 async function boot() {
   initThreeJS();
-
-  // Dual render loop: main particles + 3D product cards
-  function combinedLoop(time) {
-    animateThreeJS(time);
-    animate3DCards(time);
-    requestAnimationFrame(combinedLoop);
-  }
-  requestAnimationFrame(combinedLoop);
+  requestAnimationFrame(animateThreeJS);
 
   await initLenis();
   initScrollAnimations();
@@ -1120,22 +936,8 @@ async function boot() {
   initCursor();
   initNavDots();
   initProductHover();
-  init3DCards();
   initNav();
   initPageTransitions();
-
-  // Wait for layout then resize 3D card renderers
-  setTimeout(() => {
-    card3DScenes.forEach((s) => {
-      const w = s.el.clientWidth;
-      const h = s.el.clientHeight;
-      if (w > 0 && h > 0) {
-        s.renderer.setSize(w, h);
-        s.camera.aspect = w / h;
-        s.camera.updateProjectionMatrix();
-      }
-    });
-  }, 500);
 
   // Intro sound on first click
   const soundBtn = document.getElementById('sound-indicator');
