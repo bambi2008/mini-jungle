@@ -850,6 +850,32 @@ function initNav() {
 // ═════════════════════════════════════════════════════════
 // PAGE TRANSITIONS
 // ═════════════════════════════════════════════════════════
+function initCardVideos() {
+  // Inject hover video into each variant-img
+  document.querySelectorAll('.product-section').forEach((section) => {
+    const productKey = section.dataset.product;
+    const videoInfo = VIDEO_MAP[productKey];
+    if (!videoInfo || !videoInfo.local) return;
+
+    const images = section.querySelectorAll('.variant-img');
+    images.forEach((img) => {
+      const video = document.createElement('video');
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = true;
+      video.preload = 'none';
+      video.innerHTML = `<source src="${videoInfo.local}" type="video/mp4">`;
+      img.appendChild(video);
+
+      const card = img.closest('.variant-card');
+      if (card) {
+        card.addEventListener('mouseenter', () => { video.play().catch(() => {}); });
+        card.addEventListener('mouseleave', () => { video.pause(); video.currentTime = 0; });
+      }
+    });
+  });
+}
+
 function initCardBreathing() {
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
@@ -861,6 +887,72 @@ function initCardBreathing() {
 
   document.querySelectorAll('.variant-card').forEach((card) => {
     observer.observe(card);
+  });
+}
+
+// ═════════════════════════════════════════════════════════
+// LANGUAGE TOGGLE
+// ═════════════════════════════════════════════════════════
+const translations = {
+  en: {
+    brand: 'A LIVING SYSTEM. NOT A PLANT.',
+    products: 'Products',
+    navigate: 'Navigate',
+    contact: 'Contact',
+  },
+  zh: {
+    brand: '不是植物。是生命系统。',
+    products: '产品系列',
+    navigate: '导航',
+    contact: '联系我们',
+  },
+};
+
+function initLanguageToggle() {
+  const btn = document.getElementById('lang-toggle');
+  if (!btn) return;
+
+  let lang = localStorage.getItem('mj_lang') || 'en';
+  btn.textContent = lang === 'zh' ? 'EN' : '中文';
+  document.documentElement.lang = lang;
+
+  btn.addEventListener('click', () => {
+    lang = lang === 'en' ? 'zh' : 'en';
+    localStorage.setItem('mj_lang', lang);
+    btn.textContent = lang === 'zh' ? 'EN' : '中文';
+    document.documentElement.lang = lang;
+
+    // Dispatch event for dynamic content
+    window.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
+  });
+}
+
+// ═════════════════════════════════════════════════════════
+// MOBILE BOTTOM NAV
+// ═════════════════════════════════════════════════════════
+function initMobileNav() {
+  if (!isMobile) return;
+  const nav = document.createElement('nav');
+  nav.id = 'mobile-nav';
+  nav.innerHTML = `
+    <a href="#hero">Home</a>
+    <a href="#product-space">Shop</a>
+    <a href="#instagram">Social</a>
+    <a href="#contact">Contact</a>
+  `;
+  document.body.appendChild(nav);
+
+  // Highlight active link
+  const links = nav.querySelectorAll('a');
+  document.querySelectorAll('.scene, .product-section').forEach((section, i) => {
+    new IntersectionObserver((entries) => {
+      entries.forEach((e) => {
+        if (e.isIntersecting) {
+          links.forEach(l => l.classList.remove('active'));
+          if (links[i]) links[i].classList.add('active');
+        }
+      });
+    }, { threshold: 0.4 }).observe(section);
   });
 }
 
@@ -1069,8 +1161,11 @@ async function boot() {
   initNavDots();
   initProductHover();
   initCardBreathing();
+  initCardVideos();
   initNav();
   initPageTransitions();
+  initLanguageToggle();
+  initMobileNav();
 
   // Intro sound on first click
   const soundBtn = document.getElementById('sound-indicator');
