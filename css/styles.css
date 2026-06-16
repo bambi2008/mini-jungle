@@ -959,6 +959,19 @@ img { display: block; max-width: 100%; }
   font-weight: 300;
 }
 
+.footer-privacy {
+  display: inline-block;
+  margin-top: 0.5rem;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+
+.footer-privacy:hover { opacity: 0.8; }
+
 /* ═══════════════ VIDEO MODAL ═══════════════ */
 .video-modal {
   position: fixed;

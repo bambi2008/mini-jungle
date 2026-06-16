@@ -311,8 +311,13 @@ createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
     res.end(content);
   } catch {
-    res.writeHead(404);
-    res.end('404');
+    res.writeHead(404, { 'Content-Type': 'text/html; charset=utf-8' });
+    try {
+      const notFound = await readFile(join(ROOT, '404.html'));
+      res.end(notFound);
+    } catch {
+      res.end('404');
+    }
   }
 }).listen(PORT, () => {
   console.log(`http://localhost:${PORT}`);
