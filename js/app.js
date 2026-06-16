@@ -1197,6 +1197,92 @@ function updateWishlistBtn(btn, name) {
   }
 }
 
+// ═════════════════════════════════════════════════════════
+// SMART RECOMMENDATIONS
+// ═════════════════════════════════════════════════════════
+const PRODUCT_RELATIONS = {
+  'signature-space': ['wall', 'desk'],
+  'wall': ['desk', 'signature-space', 'gift'],
+  'desk': ['wall', 'gift'],
+  'gift': ['desk', 'wall'],
+  'doctor': ['signature-space', 'wall'],
+};
+
+function trackView(productKey, variantIdx) {
+  let views = [];
+  try { views = JSON.parse(localStorage.getItem('mj_views') || '[]'); } catch {}
+  views.push({ key: productKey, idx: variantIdx, time: Date.now() });
+  // Keep last 20 views
+  if (views.length > 20) views = views.slice(-20);
+  localStorage.setItem('mj_views', JSON.stringify(views));
+}
+
+function getRecommendations() {
+  let views = [];
+  try { views = JSON.parse(localStorage.getItem('mj_views') || '[]'); } catch {}
+  if (views.length < 2) return [];
+
+  // Get unique viewed product keys (last 5)
+  const viewed = [...new Set(views.map(v => v.key).reverse())].slice(0, 5);
+
+  // Collect related products, exclude already viewed
+  const recs = new Set();
+  viewed.forEach(key => {
+    const related = PRODUCT_RELATIONS[key] || [];
+    related.forEach(r => { if (!viewed.includes(r)) recs.add(r); });
+  });
+
+  return [...recs].slice(0, 3);
+}
+
+function showRecommendations() {
+  const recs = getRecommendations();
+  const bar = document.getElementById('rec-bar');
+  const items = document.getElementById('recItems');
+  if (!bar || !items || recs.length === 0) {
+    if (bar) bar.classList.add('hidden');
+    return;
+  }
+
+  items.innerHTML = recs.map(key => {
+    const data = productData[key];
+    const vc = variantCards[key]?.[0];
+    if (!data || !vc) return '';
+    return `
+      <div class="rec-item" data-rec="${key}" data-rec-idx="0">
+        <div class="rec-item-img" style="background-image:url('${vc.img}')"></div>
+        <span class="rec-item-name">${data.name}</span>
+        <span class="rec-item-price">HK$${vc.price}</span>
+      </div>
+    `;
+  }).join('');
+
+  // Bind clicks
+  items.querySelectorAll('.rec-item').forEach(el => {
+    el.addEventListener('click', () => {
+      openProductModal(el.dataset.rec, parseInt(el.dataset.recIdx));
+    });
+  });
+
+  bar.classList.remove('hidden');
+}
+
+function initRecommendations() {
+  // Close button
+  const close = document.getElementById('recClose');
+  if (close) close.addEventListener('click', () => {
+    document.getElementById('rec-bar').classList.add('hidden');
+  });
+
+  // Track views when modal opens (hooks into openProductModal)
+  const origOpen = openProductModal;
+  window.openProductModal = function(key, idx) {
+    origOpen(key, idx);
+    trackView(key, idx);
+    setTimeout(showRecommendations, 600);
+  };
+}
+
 function initWishlist() {
   // Modal wishlist button
   const modalBtn = document.getElementById('modalWishlist');
@@ -1492,6 +1578,7 @@ async function boot() {
   initPageTransitions();
   initLanguageToggle();
   initFilter();
+  initRecommendations();
   initWishlist();
   initMobileNav();
   initEmailHooks();
