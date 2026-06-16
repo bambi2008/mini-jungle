@@ -542,6 +542,75 @@ img { display: block; max-width: 100%; }
 /* ── Legacy button cleanup ── */
 .btn-buy, .btn-video, .btn-inquire, .btn-buy-sm { display: none; }
 
+/* ═══════════════ CASE STUDIES ═══════════════ */
+.cases-section {
+  background: var(--bg);
+  min-height: auto;
+  flex-direction: column;
+  gap: 3rem;
+  padding: 6rem 2rem;
+}
+
+.cases-header { text-align: center; }
+
+.cases-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.case-card {
+  background: #0A0A0A;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  transition: border-color 0.35s, transform 0.35s;
+  cursor: pointer;
+}
+
+.case-card:hover {
+  border-color: rgba(143,191,154,0.3);
+  transform: translateY(-4px);
+}
+
+.case-img {
+  width: 100%;
+  aspect-ratio: 16/10;
+  background-size: cover;
+  background-position: center;
+  filter: saturate(0.6) brightness(0.7);
+  transition: filter 0.5s;
+}
+
+.case-card:hover .case-img {
+  filter: saturate(1) brightness(0.9);
+}
+
+.case-info {
+  padding: 1rem 1.2rem;
+}
+
+.case-client {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--text);
+  letter-spacing: 0.03em;
+  margin-bottom: 0.25rem;
+}
+
+.case-type {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 768px) {
+  .cases-grid { grid-template-columns: 1fr; }
+}
+
 /* ═══════════════ CLIENT PATH ═══════════════ */
 #path {
   background: var(--bg);
