@@ -17,18 +17,52 @@ let isMobile = window.innerWidth < 768;
 let perfTier = 'high'; // 'low' | 'mid' | 'high'
 
 function detectPerfTier() {
-  // Check for low-end devices
-  const mem = navigator.deviceMemory || 4; // GB
+  const mem = navigator.deviceMemory || 4;
   const cores = navigator.hardwareConcurrency || 4;
   if (isMobile && mem <= 2) perfTier = 'low';
   else if (isMobile || mem <= 4 || cores <= 4) perfTier = 'mid';
   else perfTier = 'high';
+
+  // Reduce render quality on mobile
+  if (isMobile && renderer) {
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+  }
 }
 
 function getParticleCount() {
-  if (perfTier === 'low') return 400;
-  if (perfTier === 'mid') return 1200;
-  return 3000;
+  if (perfTier === 'low') return 200;   // very low
+  if (perfTier === 'mid') return 600;   // mobile
+  return 2000;                          // desktop (reduced from 3000)
+}
+
+// Lazy load background images
+function initLazyLoading() {
+  if ('loading' in HTMLImageElement.prototype) return; // browser supports native lazy loading
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (e.isIntersecting) {
+        const el = e.target;
+        if (el.dataset.bg) {
+          el.style.backgroundImage = `url('${el.dataset.bg}')`;
+          delete el.dataset.bg;
+        }
+        observer.unobserve(el);
+      }
+    });
+  }, { rootMargin: '300px' });
+
+  document.querySelectorAll('.variant-img, .case-img, .ig-img').forEach((el) => {
+    const style = el.style.backgroundImage;
+    if (style && style !== 'none') {
+      const url = style.match(/url\(['"]?([^'")]+)['"]?\)/)?.[1];
+      if (url) {
+        el.dataset.bg = url;
+        el.style.backgroundImage = 'none';
+        observer.observe(el);
+      }
+    }
+  });
 }
 
 // ═════════════════════════════════════════════════════════
@@ -1461,6 +1495,7 @@ async function boot() {
   initWishlist();
   initMobileNav();
   initEmailHooks();
+  initLazyLoading();
 
   // Intro sound on first click
   const soundBtn = document.getElementById('sound-indicator');

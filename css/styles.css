@@ -553,6 +553,14 @@ img { display: block; max-width: 100%; }
 
 .cases-header { text-align: center; }
 
+.cases-disclaimer {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  opacity: 0.5;
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
 .cases-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
