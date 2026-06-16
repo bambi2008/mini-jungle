@@ -1102,6 +1102,120 @@ function initLanguageToggle() {
 // ═════════════════════════════════════════════════════════
 // MOBILE BOTTOM NAV
 // ═════════════════════════════════════════════════════════
+// ═════════════════════════════════════════════════════════
+// PRODUCT FILTER
+// ═════════════════════════════════════════════════════════
+function initFilter() {
+  const bar = document.getElementById('filterBar');
+  if (!bar) return;
+
+  bar.querySelectorAll('.filter-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const filter = btn.dataset.filter;
+      document.querySelectorAll('.product-section').forEach((section) => {
+        if (filter === 'all' || section.dataset.filter?.includes(filter)) {
+          section.classList.remove('filtered-out');
+        } else {
+          section.classList.add('filtered-out');
+        }
+      });
+
+      // Refresh ScrollTrigger after filter change
+      setTimeout(() => ScrollTrigger.refresh(), 100);
+    });
+  });
+}
+
+// ═════════════════════════════════════════════════════════
+// WISHLIST
+// ═════════════════════════════════════════════════════════
+function getWishlist() {
+  try { return JSON.parse(localStorage.getItem('mj_wishlist') || '[]'); }
+  catch { return []; }
+}
+function saveWishlist(w) { localStorage.setItem('mj_wishlist', JSON.stringify(w)); }
+function isWished(name) { return getWishlist().includes(name); }
+
+function toggleWishlist(name) {
+  const w = getWishlist();
+  const idx = w.indexOf(name);
+  if (idx >= 0) w.splice(idx, 1);
+  else w.push(name);
+  saveWishlist(w);
+  return idx < 0; // true = now wished
+}
+
+function updateWishlistBtn(btn, name) {
+  if (isWished(name)) {
+    btn.classList.add('wished');
+    btn.textContent = '♥';
+  } else {
+    btn.classList.remove('wished');
+    btn.textContent = '♡';
+  }
+}
+
+function initWishlist() {
+  // Modal wishlist button
+  const modalBtn = document.getElementById('modalWishlist');
+  if (modalBtn) {
+    modalBtn.addEventListener('click', () => {
+      const name = `${document.getElementById('modalName')?.textContent} — ${document.getElementById('modalVariant')?.textContent}`;
+      const added = toggleWishlist(name);
+      updateWishlistBtn(modalBtn, name);
+      modalBtn.style.transform = 'scale(1.4)';
+      setTimeout(() => modalBtn.style.transform = '', 300);
+    });
+
+    // Update when modal opens
+    const origOpen = openProductModal;
+    window.openProductModal = function(...args) {
+      origOpen(...args);
+      setTimeout(() => {
+        const name = `${document.getElementById('modalName')?.textContent} — ${document.getElementById('modalVariant')?.textContent}`;
+        updateWishlistBtn(modalBtn, name);
+      }, 50);
+    };
+  }
+}
+
+// ═════════════════════════════════════════════════════════
+// EMAIL SYSTEM — Resend-ready infrastructure
+// ═════════════════════════════════════════════════════════
+async function sendEmail(to, subject, html) {
+  try {
+    const res = await fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ to, subject, html }),
+    });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+// Hook into checkout: send order confirmation
+function initEmailHooks() {
+  const origFetch = window.fetch;
+  // Intercept checkout API calls to also trigger email
+  window.addEventListener('message', async (e) => {
+    if (e.data?.type === 'order-placed' && e.data?.email) {
+      const items = e.data.items || [];
+      const total = items.reduce((s, i) => s + (parseFloat(i.price) || 0) * i.qty, 0);
+      await sendEmail(e.data.email, 'Order Confirmed — HK MiniJungle',
+        `<h2>Thank you for your order!</h2>
+         <p>Items: ${items.map(i => i.name + ' x' + i.qty).join(', ')}</p>
+         <p>Total: HK$${total.toLocaleString()}</p>
+         <p>We'll be in touch via WhatsApp for delivery.</p>`
+      );
+    }
+  });
+}
+
 function initMobileNav() {
   if (!isMobile) return;
   const nav = document.createElement('nav');
@@ -1338,7 +1452,10 @@ async function boot() {
   initNav();
   initPageTransitions();
   initLanguageToggle();
+  initFilter();
+  initWishlist();
   initMobileNav();
+  initEmailHooks();
 
   // Intro sound on first click
   const soundBtn = document.getElementById('sound-indicator');

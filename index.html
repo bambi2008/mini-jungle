@@ -147,8 +147,18 @@
 
     <!-- ══ SECTION 3 · PRODUCTS ══ -->
 
+    <!-- Product filter bar -->
+    <div class="filter-bar" id="filterBar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="space">Signature</button>
+      <button class="filter-btn" data-filter="wall">Wall</button>
+      <button class="filter-btn" data-filter="desk">Desk</button>
+      <button class="filter-btn" data-filter="gift">Gift</button>
+      <button class="filter-btn" data-filter="b2b">B2B</button>
+    </div>
+
     <!-- Product 01: Signature Space -->
-    <section id="product-space" class="scene product-section" data-scene="product" data-product="signature-space">
+    <section id="product-space" class="scene product-section" data-scene="product" data-product="signature-space" data-filter="space">
       <video class="product-video-bg" muted autoplay loop playsinline poster="https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=1920&q=80">
         <source src="video/signature-space.mp4" type="video/mp4">
       </video>
@@ -186,7 +196,7 @@
     </section>
 
     <!-- Product 02: MiniJungle Wall -->
-    <section id="product-wall" class="scene product-section" data-scene="product" data-product="wall">
+    <section id="product-wall" class="scene product-section" data-scene="product" data-product="wall" data-filter="wall space">
       <video class="product-video-bg" muted autoplay loop playsinline poster="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=1920&q=80">
         <source src="video/wall.mp4" type="video/mp4">
       </video>
@@ -220,7 +230,7 @@
     </section>
 
     <!-- Product 03: MiniJungle Desk -->
-    <section id="product-desk" class="scene product-section" data-scene="product" data-product="desk">
+    <section id="product-desk" class="scene product-section" data-scene="product" data-product="desk" data-filter="desk home">
       <video class="product-video-bg" muted autoplay loop playsinline poster="https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=80">
         <source src="video/desk.mp4" type="video/mp4">
       </video>
@@ -254,7 +264,7 @@
     </section>
 
     <!-- Product 04: Gift Box -->
-    <section id="product-gift" class="scene product-section" data-scene="product" data-product="gift">
+    <section id="product-gift" class="scene product-section" data-scene="product" data-product="gift" data-filter="gift home">
       <video class="product-video-bg" muted autoplay loop playsinline poster="https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=1920&q=80">
         <source src="video/gift.mp4" type="video/mp4">
       </video>
@@ -288,7 +298,7 @@
     </section>
 
     <!-- Product 05: Doctor Forest -->
-    <section id="product-doctor" class="scene product-section" data-scene="product" data-product="doctor">
+    <section id="product-doctor" class="scene product-section" data-scene="product" data-product="doctor" data-filter="b2b">
       <video class="product-video-bg" muted autoplay loop playsinline poster="https://images.unsplash.com/photo-1491147334573-44cbb4602074?w=1920&q=80">
         <source src="video/doctor-forest.mp4" type="video/mp4">
       </video>
@@ -464,7 +474,10 @@
           <p class="product-modal-variant" id="modalVariant">Variant</p>
           <p class="product-modal-desc" id="modalDesc">Description</p>
           <div class="product-modal-specs" id="modalSpecs"></div>
-          <div class="product-modal-price" id="modalPrice">HK$---</div>
+          <div class="product-modal-price-row">
+            <span class="product-modal-price" id="modalPrice">HK$---</span>
+            <button class="wishlist-btn" id="modalWishlist" aria-label="Wishlist">&hearts;</button>
+          </div>
           <div class="product-modal-qty">
             <button id="qtyMinus">−</button>
             <span id="qtyVal">1</span>

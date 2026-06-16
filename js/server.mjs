@@ -185,6 +185,38 @@ createServer(async (req, res) => {
     }
   }
 
+  // ── Send Email (Resend-ready) ──
+  if (url === '/api/send-email' && method === 'POST') {
+    const body = await readBody(req);
+    const RESEND_KEY = process.env.RESEND_API_KEY || '';
+
+    if (!RESEND_KEY) {
+      // Demo mode: log to console
+      console.log(`[EMAIL] To: ${body.to} | Subject: ${body.subject}`);
+      return jsonRes(res, { demo: true, message: 'Email logged (Resend key not configured).' });
+    }
+
+    try {
+      const emailRes = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${RESEND_KEY}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: 'HK MiniJungle <orders@hkminijungle.com>',
+          to: body.to,
+          subject: body.subject,
+          html: body.html,
+        }),
+      });
+      const data = await emailRes.json();
+      return jsonRes(res, { ok: true, data });
+    } catch (e) {
+      return jsonRes(res, { error: 'Email send failed.' }, 500);
+    }
+  }
+
   // ── Stripe Checkout Session ──
   if (url === '/api/create-checkout-session' && method === 'POST') {
     try {

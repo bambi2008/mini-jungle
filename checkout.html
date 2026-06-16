@@ -169,6 +169,13 @@
         msg.className = 'msg success';
         msg.textContent = 'Order placed! (Demo mode — server may be offline)';
         localStorage.removeItem('mj_cart');
+
+        // Trigger email confirmation
+        const email = formData.get('email');
+        if (email) {
+          window.postMessage({ type: 'order-placed', email, items: cartItems }, '*');
+        }
+
         btn.disabled = false;
       }
     });
