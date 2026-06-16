@@ -302,7 +302,9 @@ createServer(async (req, res) => {
 
   // ── STATIC FILES ──
   try {
-    let fileUrl = url === '/' ? '/index.html' : url;
+    let fileUrl = url;
+    if (fileUrl === '/') fileUrl = '/index.html';
+    if (fileUrl.endsWith('/')) fileUrl += 'index.html';
     const path = join(ROOT, fileUrl);
     const content = await readFile(path);
     const ext = extname(path).toLowerCase();
