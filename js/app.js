@@ -1078,7 +1078,12 @@ function initLanguageToggle() {
 
     // Swap all [data-en][data-zh] elements
     document.querySelectorAll('[data-en][data-zh]').forEach((el) => {
-      el.textContent = el.dataset[lang];
+      const val = el.dataset[lang];
+      if (val.includes('<') && val.includes('>')) {
+        el.innerHTML = val;
+      } else {
+        el.textContent = val;
+      }
     });
 
     // Swap placeholders
