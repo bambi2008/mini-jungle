@@ -660,6 +660,168 @@ function updateCartUI() {
   }
 }
 
+// ═════════════════════════════════════════════════════════
+// PRODUCT DETAIL MODAL
+// ═════════════════════════════════════════════════════════
+const productData = {
+  'signature-space': {
+    index: 'PRODUCT / 01',
+    name: 'Signature Space',
+    desc: 'A one-of-one living installation for headquarters, flagship stores, and hotel lobbies. Designed as brand language — not decoration. Each piece is custom-sized, custom-planted, and custom-lit for the space it inhabits.',
+    specs: ['Bespoke · Custom Dimensions · Brand Statement', 'Xponge Soilless · Closed-loop Water · LED Spectrum'],
+  },
+  'wall': {
+    index: 'PRODUCT / 02',
+    name: 'MiniJungle Wall',
+    desc: 'A living painting. Slimmer than a frame, more alive than a garden. Wall-mounted, self-irrigating, zero-mess installation. The 55×240cm module clicks together like tiles — scale from a single statement piece to an entire living wall.',
+    specs: ['55×240cm Standard · Ultra-thin 6cm Profile · Modular', 'Xponge Soilless · Closed-loop · Full-spectrum LED'],
+  },
+  'desk': {
+    index: 'PRODUCT / 03',
+    name: 'MiniJungle Desk',
+    desc: 'A miniature forest on your desk. Not a houseplant — a designed object with presence, personality, and roots. Self-contained planter with integrated lighting. Perfect for personal desks, co-working spaces, and hotel rooms.',
+    specs: ['Desktop Scale · Plug & Grow · Self-contained', 'Integrated LED · Water-level Indicator · Silent'],
+  },
+  'gift': {
+    index: 'PRODUCT / 04',
+    name: 'Gift Box',
+    desc: 'Collected like art toys. Gifted like treasures. Grown like plants. Each box is a self-contained green universe — a curated selection of plant, vessel, and care card. Limited seasonal drops. Not a flower-shop gift box.',
+    specs: ['Curated Box · Collectible · Shareable', 'Plant + Vessel + Care Card · Seasonal Drops'],
+  },
+  'doctor': {
+    index: 'PRODUCT / 05',
+    name: 'Doctor Forest',
+    desc: 'A five-step green workplace strategy: Audit, Design, Install, Subscribe, and Storytell. For companies that want biophilic design as a service, not a one-time project. Includes ESG storytelling kit for your sustainability report.',
+    specs: ['Audit · Design · Install · Maintain · Storytell', 'ESG Kit · Wellness Narrative · Team Workshop'],
+  },
+};
+
+const variantCards = {
+  'signature-space': [
+    { variant: 'Flagship', price: 'XX,XXX', img: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800&q=80' },
+    { variant: 'Boutique', price: 'XX,XXX', img: 'https://images.unsplash.com/photo-1491147334573-44cbb4602074?w=800&q=80' },
+    { variant: 'Pop-up', price: 'XX,XXX', img: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=800&q=80' },
+  ],
+  'wall': [
+    { variant: 'Wall Classic', price: 'X,XXX', img: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=800&q=80' },
+    { variant: 'Wall Panorama', price: 'X,XXX', img: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80' },
+    { variant: 'Wall Compact', price: 'X,XXX', img: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=800&q=80' },
+  ],
+  'desk': [
+    { variant: 'Desk Solo', price: 'XXX', img: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80' },
+    { variant: 'Desk Duo', price: 'XXX', img: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=800&q=80' },
+    { variant: 'Desk Mini', price: 'XXX', img: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=800&q=80' },
+  ],
+  'gift': [
+    { variant: 'Seasonal Box', price: 'XXX', img: 'https://images.unsplash.com/photo-1485955900006-10f4d324d411?w=800&q=80' },
+    { variant: 'Collector Box', price: 'XXX', img: 'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=800&q=80' },
+    { variant: 'Mini Box', price: 'XXX', img: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=800&q=80' },
+  ],
+  'doctor': [
+    { variant: 'Audit', price: 'XX,XXX', img: 'https://images.unsplash.com/photo-1491147334573-44cbb4602074?w=800&q=80' },
+    { variant: 'Strategy', price: 'XX,XXX', img: 'https://images.unsplash.com/photo-1465146344425-f00d5f5c8f07?w=800&q=80' },
+    { variant: 'Full Service', price: 'XX,XXX', img: 'https://images.unsplash.com/photo-1501004318641-b39e6451bec6?w=800&q=80' },
+  ],
+};
+
+let modalQty = 1;
+let modalCurrentProduct = null;
+let modalCurrentVariant = null;
+
+function openProductModal(productKey, variantIdx) {
+  const data = productData[productKey];
+  const vc = variantCards[productKey]?.[variantIdx];
+  if (!data || !vc) return;
+
+  modalCurrentProduct = productKey;
+  modalCurrentVariant = vc;
+  modalQty = 1;
+
+  document.getElementById('modalIndex').textContent = data.index;
+  document.getElementById('modalName').textContent = data.name;
+  document.getElementById('modalVariant').textContent = vc.variant;
+  document.getElementById('modalDesc').textContent = data.desc;
+  document.getElementById('modalSpecs').innerHTML = data.specs.map(s => `<span>${s}</span>`).join('');
+  document.getElementById('modalPrice').textContent = 'HK$' + vc.price;
+  document.getElementById('modalImage').style.backgroundImage = `url('${vc.img}')`;
+  document.getElementById('qtyVal').textContent = '1';
+
+  document.getElementById('product-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+
+  // Play video if available
+  const video = document.getElementById('modalVideo');
+  if (video) { video.currentTime = 0; video.play().catch(() => {}); }
+}
+
+function closeProductModal() {
+  document.getElementById('product-modal').classList.add('hidden');
+  document.body.style.overflow = '';
+  const video = document.getElementById('modalVideo');
+  if (video) video.pause();
+}
+
+function initProductModal() {
+  // Click on variant card → open modal
+  document.querySelectorAll('.variant-card').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      // Don't open if clicking the ADD TO CART button
+      if (e.target.closest('.btn-cart-add')) return;
+
+      const section = card.closest('.product-section');
+      const productKey = section?.dataset.product;
+      const cards = Array.from(section?.querySelectorAll('.variant-card') || []);
+      const idx = cards.indexOf(card);
+      if (productKey && idx >= 0) openProductModal(productKey, idx);
+    });
+
+    // Make card look clickable
+    card.style.cursor = 'pointer';
+  });
+
+  // Close button
+  document.querySelector('.product-modal-close').addEventListener('click', closeProductModal);
+  document.querySelector('.product-modal-backdrop').addEventListener('click', closeProductModal);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProductModal(); });
+
+  // Quantity
+  document.getElementById('qtyMinus').addEventListener('click', () => {
+    if (modalQty > 1) { modalQty--; document.getElementById('qtyVal').textContent = modalQty; }
+  });
+  document.getElementById('qtyPlus').addEventListener('click', () => {
+    modalQty++; document.getElementById('qtyVal').textContent = modalQty;
+  });
+
+  // Add to cart from modal
+  document.getElementById('modalAddCart').addEventListener('click', () => {
+    if (!modalCurrentVariant) return;
+    const name = `${productData[modalCurrentProduct]?.name} — ${modalCurrentVariant.variant}`;
+    const price = modalCurrentVariant.price;
+    const cart = getCart();
+    const existing = cart.find(i => i.name === name);
+    if (existing) { existing.qty += modalQty; }
+    else { cart.push({ name, price, qty: modalQty }); }
+    saveCart(cart);
+    updateCartUI();
+
+    // Flash cart bar
+    const mini = document.getElementById('mini-cart');
+    if (mini) { mini.classList.add('open'); setTimeout(() => mini.classList.remove('open'), 2000); }
+    document.getElementById('modalAddCart').textContent = 'ADDED ✓';
+    setTimeout(() => { document.getElementById('modalAddCart').textContent = 'ADD TO CART'; }, 1200);
+  });
+
+  // Buy now from modal
+  document.getElementById('modalBuyNow').addEventListener('click', () => {
+    if (!modalCurrentVariant) return;
+    const name = `${productData[modalCurrentProduct]?.name} — ${modalCurrentVariant.variant}`;
+    const price = modalCurrentVariant.price;
+    const params = new URLSearchParams();
+    params.set('items', JSON.stringify([{ name, price, qty: modalQty }]));
+    window.location.href = '/checkout.html?' + params.toString();
+  });
+}
+
 function initCart() {
   const toggle = document.getElementById('cart-toggle');
   const mini = document.getElementById('mini-cart');
@@ -1166,6 +1328,7 @@ async function boot() {
   await initLenis();
   initScrollAnimations();
   initInlineVideos();
+  initProductModal();
   initCart();
   initCursor();
   initNavDots();

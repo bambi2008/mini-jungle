@@ -446,6 +446,39 @@
     </div>
   </div>
 
+  <!-- ══ PRODUCT DETAIL MODAL ══ -->
+  <div id="product-modal" class="product-modal hidden">
+    <div class="product-modal-backdrop"></div>
+    <div class="product-modal-card">
+      <button class="product-modal-close">&times;</button>
+      <div class="product-modal-layout">
+        <div class="product-modal-media">
+          <video class="product-modal-video" muted autoplay loop playsinline id="modalVideo">
+            <source src="video/1.mp4" type="video/mp4">
+          </video>
+          <div class="product-modal-image" id="modalImage"></div>
+        </div>
+        <div class="product-modal-info">
+          <p class="product-modal-index" id="modalIndex">PRODUCT / 01</p>
+          <h2 class="product-modal-name" id="modalName">Product Name</h2>
+          <p class="product-modal-variant" id="modalVariant">Variant</p>
+          <p class="product-modal-desc" id="modalDesc">Description</p>
+          <div class="product-modal-specs" id="modalSpecs"></div>
+          <div class="product-modal-price" id="modalPrice">HK$---</div>
+          <div class="product-modal-qty">
+            <button id="qtyMinus">−</button>
+            <span id="qtyVal">1</span>
+            <button id="qtyPlus">+</button>
+          </div>
+          <div class="product-modal-actions">
+            <button class="btn-cart-add-lg" id="modalAddCart">ADD TO CART</button>
+            <button class="btn-buy-now" id="modalBuyNow">BUY NOW</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ SCRIPTS ══ -->
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
