@@ -5,3 +5,5 @@ data/*.sqlite
 .DS_Store
 _extract.cjs
 extract-pdf.mjs
+
+.vercel
