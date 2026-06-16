@@ -851,12 +851,10 @@ function initNav() {
 // PAGE TRANSITIONS
 // ═════════════════════════════════════════════════════════
 function initCardVideos() {
-  // Inject hover video into each variant-img
-  document.querySelectorAll('.product-section').forEach((section) => {
-    const productKey = section.dataset.product;
-    const videoInfo = VIDEO_MAP[productKey];
-    if (!videoInfo || !videoInfo.local) return;
+  // Use video/1.mp4 as demo hover video for all product cards
+  const demoVideo = 'video/1.mp4';
 
+  document.querySelectorAll('.product-section').forEach((section) => {
     const images = section.querySelectorAll('.variant-img');
     images.forEach((img) => {
       const video = document.createElement('video');
@@ -864,7 +862,7 @@ function initCardVideos() {
       video.loop = true;
       video.playsInline = true;
       video.preload = 'none';
-      video.innerHTML = `<source src="${videoInfo.local}" type="video/mp4">`;
+      video.innerHTML = `<source src="${demoVideo}" type="video/mp4">`;
       img.appendChild(video);
 
       const card = img.closest('.variant-card');
@@ -912,18 +910,30 @@ function initLanguageToggle() {
   const btn = document.getElementById('lang-toggle');
   if (!btn) return;
 
-  let lang = localStorage.getItem('mj_lang') || 'en';
-  btn.textContent = lang === 'zh' ? 'EN' : '中文';
-  document.documentElement.lang = lang;
-
-  btn.addEventListener('click', () => {
-    lang = lang === 'en' ? 'zh' : 'en';
-    localStorage.setItem('mj_lang', lang);
+  function applyLang(lang) {
     btn.textContent = lang === 'zh' ? 'EN' : '中文';
     document.documentElement.lang = lang;
 
-    // Dispatch event for dynamic content
-    window.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
+    // Swap all [data-en][data-zh] elements
+    document.querySelectorAll('[data-en][data-zh]').forEach((el) => {
+      el.textContent = el.dataset[lang];
+    });
+
+    // Swap placeholders
+    document.querySelectorAll('[data-placeholder-en][data-placeholder-zh]').forEach((el) => {
+      el.placeholder = el.dataset['placeholder' + (lang === 'zh' ? 'Zh' : 'En')];
+    });
+
+    // Save
+    localStorage.setItem('mj_lang', lang);
+  }
+
+  const savedLang = localStorage.getItem('mj_lang') || 'en';
+  applyLang(savedLang);
+
+  btn.addEventListener('click', () => {
+    const current = document.documentElement.lang;
+    applyLang(current === 'en' ? 'zh' : 'en');
   });
 }
 
