@@ -607,26 +607,124 @@ function waURL(product, action) {
   return `https://wa.me/${WA_NUMBER}?text=${text}`;
 }
 
-function initPurchaseButtons() {
-  const isB2B = (section) => section && section.id === 'product-doctor';
+// ═════════════════════════════════════════════════════════
+// SHOPPING CART
+// ═════════════════════════════════════════════════════════
+function getCart() {
+  try { return JSON.parse(localStorage.getItem('mj_cart') || '[]'); }
+  catch { return []; }
+}
+function saveCart(cart) {
+  localStorage.setItem('mj_cart', JSON.stringify(cart));
+}
 
-  document.querySelectorAll('.btn-buy-sm').forEach((btn) => {
+function updateCartUI() {
+  const cart = getCart();
+  const count = cart.reduce((s, i) => s + i.qty, 0);
+  const total = cart.reduce((s, i) => s + (parseFloat(i.price) || 0) * i.qty, 0);
+
+  const countEl = document.getElementById('cart-count');
+  const totalEl = document.getElementById('cart-total');
+  const itemsEl = document.getElementById('cart-items');
+  const sumTotal = document.getElementById('cart-sum-total');
+
+  if (countEl) countEl.textContent = count;
+  if (totalEl) totalEl.textContent = 'HK$' + total.toLocaleString();
+  if (sumTotal) sumTotal.textContent = 'HK$' + total.toLocaleString();
+
+  if (itemsEl) {
+    if (cart.length === 0) {
+      itemsEl.innerHTML = '<p class="cart-empty">Empty — add some green.</p>';
+    } else {
+      itemsEl.innerHTML = cart.map((item, idx) => `
+        <div class="cart-item">
+          <div class="cart-item-info">
+            <div class="cart-item-name">${item.name}</div>
+            <div class="cart-item-price">HK$${item.price} &times; ${item.qty}</div>
+          </div>
+          <button class="cart-item-remove" data-cart-idx="${idx}" aria-label="Remove">&times;</button>
+        </div>
+      `).join('');
+
+      // Bind remove buttons
+      itemsEl.querySelectorAll('.cart-item-remove').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const idx = parseInt(btn.dataset.cartIdx);
+          const cart = getCart();
+          cart.splice(idx, 1);
+          saveCart(cart);
+          updateCartUI();
+        });
+      });
+    }
+  }
+}
+
+function initCart() {
+  const toggle = document.getElementById('cart-toggle');
+  const mini = document.getElementById('mini-cart');
+  const close = document.getElementById('cart-close');
+  const checkout = document.getElementById('cart-checkout');
+
+  if (toggle && mini) {
+    toggle.addEventListener('click', () => mini.classList.toggle('open'));
+    if (close) close.addEventListener('click', () => mini.classList.remove('open'));
+  }
+
+  // Checkout → goes to checkout page with cart data
+  if (checkout) {
+    checkout.addEventListener('click', () => {
+      const cart = getCart();
+      if (cart.length === 0) return;
+      const params = new URLSearchParams();
+      params.set('items', JSON.stringify(cart));
+      window.location.href = '/checkout.html?' + params.toString();
+    });
+  }
+
+  // Add to cart buttons
+  document.querySelectorAll('.btn-cart-add').forEach((btn) => {
     btn.addEventListener('click', () => {
-      const section = btn.closest('.product-section');
-      const product = btn.dataset.waProduct || 'HK MiniJungle';
-      const price   = btn.dataset.price || '---';
+      const name = btn.dataset.cartName || 'Product';
+      const price = btn.dataset.cartPrice || '---';
 
-      if (isB2B(section)) {
-        // B端 → WhatsApp
-        const text = encodeURIComponent(`Hi HK MiniJungle — I'm interested in ${product}. Can you tell me more?`);
-        window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, '_blank', 'noopener');
+      const cart = getCart();
+      const existing = cart.find(i => i.name === name);
+      if (existing) {
+        existing.qty++;
       } else {
-        // C端 → checkout page
-        const params = new URLSearchParams({ product, price });
-        window.location.href = `/checkout.html?${params.toString()}`;
+        cart.push({ name, price, qty: 1 });
+      }
+      saveCart(cart);
+      updateCartUI();
+
+      // Flash feedback
+      btn.textContent = 'ADDED ✓';
+      btn.classList.add('added');
+      setTimeout(() => {
+        btn.textContent = 'ADD TO CART';
+        btn.classList.remove('added');
+      }, 1200);
+
+      // Open mini cart briefly
+      if (mini) {
+        mini.classList.add('open');
+        setTimeout(() => mini.classList.remove('open'), 2500);
       }
     });
   });
+
+  // Doctor Forest INQUIRE buttons → WhatsApp
+  document.querySelectorAll('#product-doctor .btn-cart-add').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.stopImmediatePropagation();
+      const name = btn.dataset.cartName || 'Doctor Forest';
+      const text = encodeURIComponent(`Hi HK MiniJungle — I'm interested in ${name}. Can you tell me more?`);
+      window.open(`https://wa.me/${WA_NUMBER}?text=${text}`, '_blank', 'noopener');
+    });
+  });
+
+  updateCartUI();
 }
 
 // ═════════════════════════════════════════════════════════
@@ -966,7 +1064,7 @@ async function boot() {
   await initLenis();
   initScrollAnimations();
   initInlineVideos();
-  initPurchaseButtons();
+  initCart();
   initCursor();
   initNavDots();
   initProductHover();

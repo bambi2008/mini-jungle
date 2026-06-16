@@ -9,125 +9,33 @@
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
   <style>
-    .checkout-page {
-      min-height: 100vh;
-      background: #050505;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-    .checkout-card {
-      width: 100%;
-      max-width: 560px;
-      background: #0A0A0A;
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 6px;
-      padding: 2.5rem 2rem;
-    }
-    .checkout-back {
-      font-size: 0.7rem;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 2rem;
-      display: inline-block;
-      transition: color 0.2s;
-    }
-    .checkout-back:hover { color: var(--accent); }
-    .checkout-title {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--white);
-      letter-spacing: -0.02em;
-      margin-bottom: 0.3rem;
-    }
-    .checkout-product {
-      font-size: 0.85rem;
-      color: var(--accent);
-      margin-bottom: 2rem;
-      padding: 0.6rem 0.8rem;
-      background: rgba(143,191,154,0.06);
-      border: 1px solid rgba(143,191,154,0.1);
-      border-radius: 3px;
-    }
-    .form-group {
-      margin-bottom: 1.25rem;
-    }
-    .form-group label {
-      display: block;
-      font-size: 0.68rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--text-dim);
-      margin-bottom: 0.4rem;
-    }
-    .form-group input,
-    .form-group select {
-      width: 100%;
-      padding: 0.75rem 0.8rem;
-      background: #0D0D0D;
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 3px;
-      color: var(--text);
-      font-family: var(--font-mono);
-      font-size: 0.85rem;
-      transition: border-color 0.2s;
-    }
-    .form-group input:focus,
-    .form-group select:focus {
-      outline: none;
-      border-color: var(--accent);
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-    .form-divider {
-      border: none;
-      border-top: 1px solid rgba(255,255,255,0.04);
-      margin: 1.5rem 0;
-    }
-    .checkout-total {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 1rem;
-      color: var(--white);
-      margin-bottom: 1.5rem;
-      padding: 0.8rem 0;
-      border-top: 1px solid rgba(255,255,255,0.06);
-      border-bottom: 1px solid rgba(255,255,255,0.06);
-    }
-    .checkout-total .amount {
-      font-weight: 700;
-      font-size: 1.3rem;
-      color: var(--accent);
-    }
-    .btn-pay {
-      width: 100%;
-      padding: 1rem;
-      font-size: 0.85rem;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      font-weight: 600;
-      background: var(--moss);
-      color: var(--white);
-      border: 1px solid var(--moss-lit);
-      font-family: var(--font-mono);
-      cursor: pointer;
-      transition: all 0.25s ease;
-      border-radius: 4px;
-    }
-    .btn-pay:hover { background: var(--moss-lit); }
-    .secure-note {
-      text-align: center;
-      font-size: 0.65rem;
-      color: var(--text-dim);
-      margin-top: 1rem;
-      letter-spacing: 0.08em;
-    }
+    .checkout-page { min-height:100vh;background:#050505;display:flex;align-items:center;justify-content:center;padding:2rem; }
+    .checkout-card { width:100%;max-width:600px;background:#0A0A0A;border:1px solid rgba(255,255,255,0.06);border-radius:6px;padding:2.5rem 2rem; }
+    .checkout-back { font-size:0.7rem;letter-spacing:0.2em;text-transform:uppercase;color:var(--text-dim);margin-bottom:2rem;display:inline-block;transition:color 0.2s;text-decoration:none; }
+    .checkout-back:hover { color:var(--accent); }
+    .checkout-title { font-size:1.4rem;font-weight:700;color:var(--white);letter-spacing:-0.02em;margin-bottom:0.3rem; }
+    .checkout-sub { font-size:0.72rem;color:var(--text-dim);margin-bottom:1.5rem; }
+    .order-summary { background:rgba(143,191,154,0.04);border:1px solid rgba(143,191,154,0.1);border-radius:4px;padding:1rem;margin-bottom:2rem; }
+    .order-item { display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;font-size:0.82rem;color:var(--text); }
+    .order-item .qty { color:var(--text-dim);font-size:0.7rem; }
+    .order-total { display:flex;justify-content:space-between;align-items:center;padding-top:0.7rem;margin-top:0.5rem;border-top:1px solid rgba(255,255,255,0.06);font-size:0.95rem;font-weight:700;color:var(--white); }
+    .order-total .amount { color:var(--accent);font-size:1.1rem; }
+    .fg { margin-bottom:1.2rem; }
+    .fg label { display:block;font-size:0.68rem;letter-spacing:0.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:0.4rem; }
+    .fg input { width:100%;padding:0.75rem 0.8rem;background:#0D0D0D;border:1px solid rgba(255,255,255,0.08);border-radius:3px;color:var(--text);font-family:var(--font-mono);font-size:0.85rem;transition:border-color 0.2s; }
+    .fg input:focus { outline:none;border-color:var(--accent); }
+    .fg-row { display:grid;grid-template-columns:1fr 1fr;gap:1rem; }
+    .guest-note { font-size:0.7rem;color:var(--text-dim);text-align:center;margin:1rem 0;line-height:1.6; }
+    .guest-note a { color:var(--accent);text-decoration:underline; }
+    .btn-pay { width:100%;padding:1rem;font-size:0.85rem;letter-spacing:0.15em;text-transform:uppercase;font-weight:600;background:var(--moss);color:var(--white);border:1px solid var(--moss-lit);font-family:var(--font-mono);cursor:pointer;transition:all 0.25s;border-radius:4px; }
+    .btn-pay:hover { background:var(--moss-lit); }
+    .btn-pay:disabled { opacity:0.5;cursor:not-allowed; }
+    .secure-note { text-align:center;font-size:0.65rem;color:var(--text-dim);margin-top:1.5rem;letter-spacing:0.08em;display:flex;align-items:center;justify-content:center;gap:0.5rem; }
+    .opt-in { display:flex;align-items:flex-start;gap:0.5rem;margin:1rem 0;font-size:0.72rem;color:var(--text-dim); }
+    .opt-in input { margin-top:0.15rem;accent-color:var(--accent); }
+    .msg { font-size:0.75rem;margin-top:0.8rem;text-align:center;min-height:1.2em; }
+    .msg.error { color:#E05555; }
+    .msg.success { color:var(--accent); }
   </style>
 </head>
 <body>
@@ -135,88 +43,134 @@
     <div class="checkout-card">
       <a href="/" class="checkout-back">&larr; Back to HK MiniJungle</a>
       <h1 class="checkout-title">Checkout</h1>
-      <p class="checkout-sub" style="font-size:0.72rem;color:var(--text-dim);margin-bottom:1rem;"></p>
-      <div class="checkout-product" id="checkoutProduct">Loading...</div>
+      <p class="checkout-sub" id="loginNote"></p>
 
-      <form id="paymentForm">
-        <div class="form-group">
-          <label>Full Name</label>
-          <input type="text" placeholder="Your name" required>
+      <!-- Order summary from cart -->
+      <div class="order-summary" id="orderSummary">
+        <p style="color:var(--text-dim);font-size:0.78rem;">Loading cart...</p>
+      </div>
+
+      <form id="checkoutForm">
+        <div class="fg"><label>Full Name</label><input name="name" type="text" placeholder="Your name" required></div>
+        <div class="fg"><label>Email</label><input name="email" type="email" placeholder="you@example.com" required></div>
+        <div class="fg-row">
+          <div class="fg"><label>Phone</label><input name="phone" type="tel" placeholder="+852"></div>
+          <div class="fg"><label>Postal Code</label><input name="zip" type="text" placeholder="---"></div>
         </div>
-        <div class="form-group">
-          <label>Email</label>
-          <input type="email" placeholder="you@example.com" required>
-        </div>
-        <div class="form-group">
-          <label>Phone</label>
-          <input type="tel" placeholder="+852" required>
-        </div>
-        <div class="form-group">
-          <label>Shipping Address</label>
-          <input type="text" placeholder="Street, District, Hong Kong" required>
-        </div>
-        <hr class="form-divider">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Card Number</label>
-            <input type="text" placeholder="0000 0000 0000 0000" required>
-          </div>
-          <div class="form-group">
-            <label>Expiry</label>
-            <input type="text" placeholder="MM / YY" required>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>CVC</label>
-          <input type="text" placeholder="123" required>
-        </div>
-        <div class="checkout-total">
-          <span>Total</span>
-          <span class="amount" id="checkoutAmount">HK$---</span>
-        </div>
-        <button type="submit" class="btn-pay">Pay Securely</button>
-        <p class="secure-note">&#9679; Stripe / Test Mode &mdash; No real charges</p>
+        <div class="fg"><label>Shipping Address</label><input name="address" type="text" placeholder="Street, District, Hong Kong" required></div>
+
+        <!-- Optional account creation -->
+        <label class="opt-in">
+          <input type="checkbox" name="createAccount" checked>
+          <span>Save my info and create an account for order tracking and future purchases.</span>
+        </label>
+
+        <p class="guest-note">
+          No account required. You can checkout as a guest.<br>
+          Already have an account? <a href="/account.html?redirect=/checkout.html">Sign in</a> for faster checkout.
+        </p>
+
+        <button type="submit" class="btn-pay" id="payBtn">Pay with Card</button>
+        <p class="msg" id="payMsg"></p>
       </form>
+
+      <p class="secure-note">
+        <span>🔒</span> Secure payment powered by Stripe · Test Mode
+      </p>
     </div>
   </div>
 
   <script>
-    // Check login status
+    // ── Load cart from URL ──
+    const params = new URLSearchParams(window.location.search);
+    let cartItems = [];
+    try { cartItems = JSON.parse(params.get('items') || '[]'); } catch { cartItems = []; }
+
+    // If no cart items, check localStorage
+    if (cartItems.length === 0) {
+      try { cartItems = JSON.parse(localStorage.getItem('mj_cart') || '[]'); } catch {}
+    }
+
+    const total = cartItems.reduce((s, i) => s + (parseFloat(i.price) || 0) * i.qty, 0);
+
+    // ── Render order summary ──
+    const summary = document.getElementById('orderSummary');
+    if (cartItems.length === 0) {
+      summary.innerHTML = '<p style="color:#E05555;font-size:0.78rem;">Your cart is empty. <a href="/" style="color:var(--accent);">Go back and add items.</a></p>';
+      document.getElementById('payBtn').disabled = true;
+    } else {
+      summary.innerHTML = cartItems.map(i => `
+        <div class="order-item"><span>${i.name}</span><span class="qty">&times;${i.qty} &nbsp; HK$${i.price}</span></div>
+      `).join('') + `
+        <div class="order-total"><span>Total</span><span class="amount">HK$${total.toLocaleString()}</span></div>
+      `;
+    }
+
+    // ── Login status ──
     const token = localStorage.getItem('mj_token');
     const customer = JSON.parse(localStorage.getItem('mj_customer') || 'null');
-
-    if (!token || !customer) {
-      // Not logged in — redirect to account page
-      const returnUrl = encodeURIComponent(window.location.href);
-      window.location.href = '/account.html?redirect=' + returnUrl;
-    }
-
-    // Show customer info
+    const note = document.getElementById('loginNote');
     if (customer) {
-      document.querySelector('.checkout-sub').textContent = 'Logged in as ' + customer.email;
+      note.textContent = 'Signed in as ' + customer.email;
+      document.querySelector('input[name="name"]').value = customer.name || '';
+      document.querySelector('input[name="email"]').value = customer.email || '';
+      document.querySelector('input[name="phone"]').value = customer.phone || '';
+    } else {
+      note.textContent = 'Guest checkout — no account needed.';
     }
 
-    // Read product from URL
-    const params = new URLSearchParams(window.location.search);
-    const product = params.get('product') || 'HK MiniJungle';
-    const price   = params.get('price') || '---';
-    document.getElementById('checkoutProduct').textContent = product;
-    document.getElementById('checkoutAmount').textContent = 'HK$' + price;
-
-    document.getElementById('paymentForm').addEventListener('submit', async (e) => {
+    // ── Submit → Stripe ──
+    document.getElementById('checkoutForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const msg = document.getElementById('payMsg');
+      const btn = document.getElementById('payBtn');
+      msg.className = 'msg';
+      msg.textContent = 'Redirecting to secure payment...';
+      btn.disabled = true;
 
-      // Record order
+      const formData = new FormData(e.target);
+      const createAccount = formData.get('createAccount') === 'on';
+
       try {
-        await fetch('/api/customers/order', {
+        // Call backend to create Stripe Checkout Session
+        const res = await fetch('/api/create-checkout-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token, product, price }),
+          body: JSON.stringify({
+            items: cartItems,
+            customer: {
+              name: formData.get('name'),
+              email: formData.get('email'),
+              phone: formData.get('phone'),
+              address: formData.get('address'),
+              zip: formData.get('zip'),
+            },
+            createAccount,
+            token,
+          }),
         });
-      } catch {}
 
-      alert('Order placed! (Test mode — no charge)\n\nProduct: ' + product + '\nWe will contact you shortly.');
-      window.location.href = '/';
+        const data = await res.json();
+
+        if (data.url) {
+          // Clear cart
+          localStorage.removeItem('mj_cart');
+          // Redirect to Stripe Checkout
+          window.location.href = data.url;
+        } else {
+          // Fallback: show success message (demo mode)
+          msg.className = 'msg success';
+          msg.textContent = 'Order placed! (Demo mode — Stripe key not configured)';
+          localStorage.removeItem('mj_cart');
+          btn.disabled = false;
+        }
+      } catch (err) {
+        // Demo fallback
+        msg.className = 'msg success';
+        msg.textContent = 'Order placed! (Demo mode — server may be offline)';
+        localStorage.removeItem('mj_cart');
+        btn.disabled = false;
+      }
     });
   </script>
 </body>

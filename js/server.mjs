@@ -185,6 +185,89 @@ createServer(async (req, res) => {
     }
   }
 
+  // ── Stripe Checkout Session ──
+  if (url === '/api/create-checkout-session' && method === 'POST') {
+    try {
+      const body = await readBody(req);
+      const STRIPE_KEY = process.env.STRIPE_SECRET_KEY || '';
+
+      if (!STRIPE_KEY || STRIPE_KEY.startsWith('sk_test_') === false) {
+        // Demo mode — save order and return success
+        const customers = await loadCustomers();
+        if (body.createAccount && body.customer.email) {
+          const existing = customers.find(c => c.email === body.customer.email);
+          if (!existing) {
+            customers.push({
+              id: randomUUID(),
+              name: body.customer.name,
+              email: body.customer.email,
+              phone: body.customer.phone || '',
+              password: '',
+              createdAt: new Date().toISOString(),
+              orders: [{
+                id: randomUUID(),
+                items: body.items,
+                total: body.items.reduce((s, i) => s + (parseFloat(i.price) || 0) * i.qty, 0),
+                date: new Date().toISOString(),
+                address: body.customer.address,
+              }],
+            });
+            await saveCustomers(customers);
+          } else if (body.token) {
+            existing.orders = existing.orders || [];
+            existing.orders.push({
+              id: randomUUID(),
+              items: body.items,
+              total: body.items.reduce((s, i) => s + (parseFloat(i.price) || 0) * i.qty, 0),
+              date: new Date().toISOString(),
+              address: body.customer.address,
+            });
+            await saveCustomers(customers);
+          }
+        }
+
+        return jsonRes(res, {
+          demo: true,
+          message: 'Stripe key not configured — order saved locally.',
+          url: null,
+        });
+      }
+
+      // Real Stripe integration
+      const lineItems = body.items.map(item => ({
+        price_data: {
+          currency: 'hkd',
+          product_data: { name: item.name },
+          unit_amount: Math.round((parseFloat(item.price) || 100) * 100), // convert to cents
+        },
+        quantity: item.qty,
+      }));
+
+      const baseUrl = `http://localhost:${PORT}`;
+      const stripeRes = await fetch('https://api.stripe.com/v1/checkout/sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${STRIPE_KEY}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          'line_items': JSON.stringify(lineItems),
+          'mode': 'payment',
+          'success_url': baseUrl + '/?payment=success',
+          'cancel_url': baseUrl + '/checkout.html?payment=cancelled',
+          'customer_email': body.customer.email,
+          'metadata[source]': 'hk-minijungle',
+        }).toString(),
+      });
+
+      const session = await stripeRes.json();
+      return jsonRes(res, { url: session.url });
+    } catch (e) {
+      console.error('Stripe error:', e);
+      return jsonRes(res, { error: 'Payment setup failed.', url: null }, 500);
+    }
+  }
+
   // ── STATIC FILES ──
   try {
     let fileUrl = url === '/' ? '/index.html' : url;
