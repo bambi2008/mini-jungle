@@ -706,7 +706,7 @@ const productData = {
   },
   'wall': {
     index: 'PRODUCT / 02',
-    name: 'MiniJungle Wall',
+    name: 'MiniJungle Living Ecosystem™',
     desc: 'A living painting. Slimmer than a frame, more alive than a garden. Wall-mounted, self-irrigating, zero-mess installation. The 55×240cm module clicks together like tiles — scale from a single statement piece to an entire living wall.',
     specs: ['55×240cm Standard · Ultra-thin 6cm Profile · Modular', 'Xponge Soilless · Closed-loop · Full-spectrum LED'],
   },
