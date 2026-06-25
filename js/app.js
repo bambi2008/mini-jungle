@@ -90,7 +90,7 @@ function initThreeJS() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   // Deeper fog for more atmosphere
-  scene.fog = new THREE.FogExp2('#050505', 0.00035);
+  scene.fog = new THREE.FogExp2('#080C09', 0.00025);
 
   // ── 5 particle layers: deep → mid → near → core → streaks ──
   const layerDefs = [
