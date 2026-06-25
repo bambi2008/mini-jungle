@@ -6,14 +6,15 @@
 }
 
 :root {
-  --bg:        #080C09;
-  --forest:    #142619;
-  --moss:      #3A5A44;
-  --moss-lit:  #7DAD8A;
-  --accent:    #A3CFAD;
-  --text:      #F8F6F1;
-  --text-dim:  #B0AAA0;
-  --border:    #1E1E1E;
+  --bg:        #0A0E0B;
+  --forest:    #0F1F14;
+  --moss:      #2D6B3F;
+  --moss-lit:  #3DA85C;
+  --accent:    #4ADE80;
+  --warm:      #F0B85E;
+  --text:      #FFFFFF;
+  --text-dim:  #C0B8A8;
+  --border:    #1A1A1A;
   --white:     #FFFFFF;
   --font-mono: 'JetBrains Mono', 'Courier New', monospace;
 }
@@ -338,8 +339,8 @@ img { display: block; max-width: 100%; }
   height: 100%;
   object-fit: cover;
   z-index: 0;
-  opacity: 0.55;
-  filter: saturate(0.7) brightness(0.6);
+  opacity: 0.7;
+  filter: saturate(0.9) brightness(0.7);
 }
 
 /* ── Fallback image (shown when video hasn't loaded) ── */
@@ -348,9 +349,9 @@ img { display: block; max-width: 100%; }
   inset: 0;
   background-size: cover;
   background-position: center;
-  opacity: 0.5;
+  opacity: 0.75;
   z-index: 0;
-  filter: saturate(0.8) brightness(0.65);
+  filter: saturate(1) brightness(0.8);
   transition: opacity 0.8s ease, transform 1.2s ease;
   will-change: transform;
 }
@@ -424,9 +425,9 @@ img { display: block; max-width: 100%; }
 }
 
 .variant-card {
-  background: rgba(15,20,16,0.5);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(20,28,22,0.35);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.1);
   border-radius: 4px;
   overflow: hidden;
   display: flex;

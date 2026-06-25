@@ -72,7 +72,7 @@ function initThreeJS() {
   detectPerfTier();
   const particleCount = getParticleCount();
   console.log('%c🌿 Performance tier: ' + perfTier + ' (' + particleCount + ' particles)',
-    'color:#8FBF9A;');
+    'color:#4ADE80;');
 
   const canvas = document.getElementById('bg-canvas');
   scene  = new THREE.Scene();
@@ -90,7 +90,7 @@ function initThreeJS() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
   // Deeper fog for more atmosphere
-  scene.fog = new THREE.FogExp2('#080C09', 0.00025);
+  scene.fog = new THREE.FogExp2('#0A0E0B', 0.0002);
 
   // ── 5 particle layers: deep → mid → near → core → streaks ──
   const layerDefs = [
@@ -101,7 +101,7 @@ function initThreeJS() {
       size: 0.18,
       zRange: [-40, -55],
       speed: 0.025,
-      color: '#0F2A1A',
+      color: '#1A3A22',
       opacity: 0.6,
       mouseInfluence: 0.3,
     },
@@ -112,7 +112,7 @@ function initThreeJS() {
       size: 0.08,
       zRange: [-15, -28],
       speed: 0.05,
-      color: '#2D5A3D',
+      color: '#2D6B3F',
       opacity: 0.55,
       mouseInfluence: 0.6,
     },
@@ -123,7 +123,7 @@ function initThreeJS() {
       size: 0.04,
       zRange: [-4, -12],
       speed: 0.09,
-      color: '#5A9A6A',
+      color: '#3DA85C',
       opacity: 0.5,
       mouseInfluence: 1.0,
     },
@@ -134,7 +134,7 @@ function initThreeJS() {
       size: 0.025,
       zRange: [-1, -5],
       speed: 0.14,
-      color: '#9FD4AA',
+      color: '#4ADE80',
       opacity: 0.65,
       mouseInfluence: 1.8,
       centerCluster: true,
@@ -230,9 +230,9 @@ function initThreeJS() {
   const sctx = streakCanvas.getContext('2d');
   const sgrad = sctx.createLinearGradient(0, 0, 0, 128);
   sgrad.addColorStop(0, 'transparent');
-  sgrad.addColorStop(0.3, '#8FBF9A44');
-  sgrad.addColorStop(0.5, '#8FBF9A88');
-  sgrad.addColorStop(0.7, '#8FBF9A44');
+  sgrad.addColorStop(0.3, '#4ADE8044');
+  sgrad.addColorStop(0.5, '#4ADE8088');
+  sgrad.addColorStop(0.7, '#4ADE8044');
   sgrad.addColorStop(1, 'transparent');
   sctx.fillStyle = sgrad;
   sctx.fillRect(0, 0, 8, 128);
@@ -1550,7 +1550,7 @@ function playIntroSound() {
     sub.stop(now + 5.5);
 
     console.log('%c🔊 Soundscape playing %c— 5s plant-growth audio',
-      'color:#8FBF9A;', 'color:#A09A90;');
+      'color:#4ADE80;', 'color:#A09A90;');
 
   } catch (e) {
     console.warn('Audio not supported:', e.message);
