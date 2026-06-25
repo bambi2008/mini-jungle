@@ -443,8 +443,7 @@ img { display: block; max-width: 100%; }
 .variant-img {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
+  height: 260px;
   background-size: cover;
   background-position: center;
   background-color: #0A0A0A;
