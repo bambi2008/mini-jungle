@@ -1,0 +1,24 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "design-md": {
+      "command": "npx",
+      "args": ["-y", "@webdesignhot/design-md-mcp"]
+    },
+    "imagepipeline": {
+      "command": "npx",
+      "args": ["-y", "@imagepipeline/mcp"]
+    },
+    "seo-image-gen": {
+      "command": "npx",
+      "args": ["-y", "seo-image-gen"]
+    },
+    "posteverywhere": {
+      "command": "npx",
+      "args": ["-y", "posteverywhere-mcp"]
+    }
+  }
+}
