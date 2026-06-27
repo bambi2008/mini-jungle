@@ -19,6 +19,10 @@
     "posteverywhere": {
       "command": "npx",
       "args": ["-y", "posteverywhere-mcp"]
+    },
+    "cms-hub": {
+      "command": "npx",
+      "args": ["-y", "cms-mcp-hub"]
     }
   }
 }
