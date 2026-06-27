@@ -1638,111 +1638,25 @@ function _unused_playIntroSound() {
   }
 }
 
-// ════════════════ AMAN-STYLE AMBIENT MUSIC ════════════════
-let audioCtx = null;
-let ambientPlaying = false;
-let ambientNodes = [];
+// ════════════════ BACKGROUND MUSIC (MP3) ════════════════
+let bgMusic = null;
 
-// Japanese pentatonic scale (yo scale) — meditative, spacious
-const PENTA = [264, 297, 352, 396, 528, 594, 704, 792];
-
-function createAmbientMusic() {
-  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (audioCtx.state === 'suspended') audioCtx.resume();
-  const ctx = audioCtx;
-  const master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
-  ambientNodes = [master];
-
-  // ── Deep warm pad (triangle wave for rounder tone) ──
-  const pad = ctx.createOscillator(); pad.type = 'triangle'; pad.frequency.value = 55;
-  const padG = ctx.createGain(); padG.gain.value = 0.04; pad.connect(padG); padG.connect(master); pad.start();
-
-  // ── Slow evolving mid pad ──
-  const mid = ctx.createOscillator(); mid.type = 'triangle'; mid.frequency.value = 176;
-  const midG = ctx.createGain(); midG.gain.value = 0.025; mid.connect(midG); midG.connect(master); mid.start();
-  (function ev() { if (!ambientPlaying) return; mid.frequency.linearRampToValueAtTime(160 + Math.random() * 40, ctx.currentTime + 12); setTimeout(ev, 12000); })();
-
-  // ── Soft water texture (very filtered noise — like distant fountain) ──
-  const buf = ctx.createBuffer(1, ctx.sampleRate * 4, ctx.sampleRate);
-  const d = buf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-  const wn = ctx.createBufferSource(); wn.buffer = buf; wn.loop = true;
-  const wf = ctx.createBiquadFilter(); wf.type = 'lowpass'; wf.frequency.value = 600; wf.Q.value = 0.5;
-  const wg = ctx.createGain(); wg.gain.value = 0.015; wn.connect(wf); wf.connect(wg); wg.connect(master); wn.start();
-
-  // ── Sparse singing-bowl chimes (long decay, wide spacing) ──
-  function bowl(freq, delaySec) {
-    if (!ambientPlaying) return;
-    const t = ctx.currentTime + delaySec;
-    const o = ctx.createOscillator(); o.type = 'sine';
-    o.frequency.setValueAtTime(freq, t);
-    o.frequency.linearRampToValueAtTime(freq * 0.995, t + 8);
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.06, t + 0.4);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 8);
-    o.connect(g); g.connect(master);
-    o.start(t); o.stop(t + 8);
-
-    // Add harmonic overtone
-    const o2 = ctx.createOscillator(); o2.type = 'sine';
-    o2.frequency.setValueAtTime(freq * 2.02, t);
-    const g2 = ctx.createGain();
-    g2.gain.setValueAtTime(0, t);
-    g2.gain.linearRampToValueAtTime(0.02, t + 0.6);
-    g2.gain.exponentialRampToValueAtTime(0.001, t + 6);
-    o2.connect(g2); g2.connect(master);
-    o2.start(t); o2.stop(t + 6);
-  }
-
-  // Schedule bowls very sparsely — every 12-25 seconds
-  function schedBowls() {
-    if (!ambientPlaying) return;
-    const delay = 12 + Math.random() * 13;
-    const f = PENTA[Math.floor(Math.random() * PENTA.length)];
-    bowl(f, 0);
-    if (Math.random() > 0.5) bowl(PENTA[Math.floor(Math.random() * PENTA.length)], 1.5 + Math.random() * 3);
-    setTimeout(schedBowls, delay * 1000);
-  }
-  setTimeout(schedBowls, 2000);
-
-  // ── Very sparse water drops ──
-  function drop(freq, delaySec) {
-    if (!ambientPlaying) return;
-    const t = ctx.currentTime + delaySec;
-    const o = ctx.createOscillator(); o.type = 'sine';
-    o.frequency.setValueAtTime(freq, t);
-    o.frequency.exponentialRampToValueAtTime(freq * 0.4, t + 0.6);
-    const g = ctx.createGain();
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(0.03, t + 0.02);
-    g.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
-    o.connect(g); g.connect(master);
-    o.start(t); o.stop(t + 0.8);
-  }
-  function schedDrops() {
-    if (!ambientPlaying) return;
-    const delay = 5 + Math.random() * 12;
-    drop(800 + Math.random() * 600, 0);
-    setTimeout(schedDrops, delay * 1000);
-  }
-  setTimeout(schedDrops, 3000);
-
-  // Gentle fade in over 3 seconds
-  master.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 3);
-}
-
-function stopAmbient() {
-  ambientPlaying = false;
-  if (ambientNodes[0]) {
-    ambientNodes[0].gain.linearRampToValueAtTime(0, audioCtx.currentTime + 2);
-    setTimeout(() => { ambientNodes.forEach(n => { try { if (n.stop) n.stop(); } catch {} }); ambientNodes = []; }, 2200);
-  }
+function initBgMusic() {
+  bgMusic = new Audio('video/bg-music.mp3');
+  bgMusic.loop = true;
+  bgMusic.volume = 0.25;
 }
 
 function toggleAmbient() {
   const btn = document.getElementById('sound-indicator');
-  if (ambientPlaying) { stopAmbient(); if (btn) { btn.textContent = '🔇'; btn.classList.remove('playing'); } }
-  else { ambientPlaying = true; createAmbientMusic(); if (btn) { btn.textContent = '🔊'; btn.classList.add('playing'); } }
+  if (!bgMusic) initBgMusic();
+  if (bgMusic.paused) {
+    bgMusic.play().catch(() => {});
+    if (btn) { btn.textContent = '🔊'; btn.classList.add('playing'); }
+  } else {
+    bgMusic.pause();
+    if (btn) { btn.textContent = '🔇'; btn.classList.remove('playing'); }
+  }
 }
 
 // ═════════════════════════════════════════════════════════
