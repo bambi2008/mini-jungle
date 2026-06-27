@@ -1,0 +1,32 @@
+name: Lighthouse CI
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lighthouse:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with: { node-version: '22' }
+
+      - name: Install & build
+        run: npm ci || true
+
+      - name: Start server
+        run: node js/server.mjs &
+        working-directory: .
+
+      - name: Wait for server
+        run: npx wait-on http://localhost:3000
+
+      - name: Run Lighthouse
+        run: |
+          npx @lhci/cli@latest autorun --collect.url=http://localhost:3000/ --collect.url=http://localhost:3000/checkout.html --collect.url=http://localhost:3000/account.html --upload.target=temporary-public-storage || true
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
