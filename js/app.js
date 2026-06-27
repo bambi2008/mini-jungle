@@ -30,12 +30,93 @@ function detectPerfTier() {
 }
 
 function getParticleCount() {
-  if (perfTier === 'low') return 200;   // very low
-  if (perfTier === 'mid') return 600;   // mobile
+  if (perfTier === 'low') return 100;   // very low
+  if (perfTier === 'mid') return 300;   // mobile
   return 2000;                          // desktop (reduced from 3000)
 }
 
 // Lazy load background images
+// ════════════════ ACCESSIBILITY ════════════════
+function initAccessibility() {
+  // Add aria-labels to all variant images
+  document.querySelectorAll('.variant-img').forEach((img) => {
+    const card = img.closest('.variant-card');
+    const name = card?.querySelector('.variant-name')?.textContent || 'Product image';
+    img.setAttribute('role', 'img');
+    img.setAttribute('aria-label', name);
+  });
+
+  // Improve focus visibility on interactive elements
+  document.querySelectorAll('button, a, input, .btn-cart-add, .filter-btn').forEach((el) => {
+    if (!el.hasAttribute('aria-label') && el.textContent?.trim()) {
+      el.setAttribute('aria-label', el.textContent.trim());
+    }
+  });
+}
+
+// ════════════════ PRODUCT SEARCH ════════════════
+function initSearch() {
+  const input = document.getElementById('filterSearch');
+  if (!input) return;
+
+  input.addEventListener('input', () => {
+    const query = input.value.toLowerCase().trim();
+
+    // Reset filter buttons when searching
+    if (query) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    }
+
+    document.querySelectorAll('.product-section').forEach((section) => {
+      const text = section.textContent?.toLowerCase() || '';
+      const variantNames = Array.from(section.querySelectorAll('.variant-name'))
+        .map(el => el.textContent?.toLowerCase() || '').join(' ');
+
+      if (!query || text.includes(query) || variantNames.includes(query)) {
+        section.classList.remove('filtered-out');
+      } else {
+        section.classList.add('filtered-out');
+      }
+    });
+
+    setTimeout(() => ScrollTrigger.refresh(), 100);
+  });
+}
+
+// ════════════════ MODAL FOCUS TRAP ════════════════
+function initFocusTrap() {
+  const modal = document.getElementById('product-modal');
+  if (!modal) return;
+
+  const focusableSelector = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+  modal.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    const focusable = modal.querySelectorAll(focusableSelector);
+    if (!focusable.length) return;
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey) {
+      if (document.activeElement === first) { e.preventDefault(); last.focus(); }
+    } else {
+      if (document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
+  });
+
+  // Auto-focus first element when modal opens
+  const observer = new MutationObserver(() => {
+    if (!modal.classList.contains('hidden')) {
+      setTimeout(() => {
+        const first = modal.querySelector(focusableSelector);
+        if (first) first.focus();
+      }, 300);
+    }
+  });
+  observer.observe(modal, { attributes: true, attributeFilter: ['class'] });
+}
+
+// ════════════════ LAZY VIDEO LOADING ════════════════
 function initLazyLoading() {
   if ('loading' in HTMLImageElement.prototype) return; // browser supports native lazy loading
 
@@ -1583,6 +1664,9 @@ async function boot() {
   initMobileNav();
   initEmailHooks();
   initLazyLoading();
+  initAccessibility();
+  initSearch();
+  initFocusTrap();
 
   // Intro sound on first click
   const soundBtn = document.getElementById('sound-indicator');
