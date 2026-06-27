@@ -1494,11 +1494,11 @@ function initProductHover() {
 }
 
 // ═════════════════════════════════════════════════════════
-// INTRO SOUNDSCAPE — generative 5s "plants growing" audio
+// INTRO SOUNDSCAPE — replaced by ambient background music (see toggleAmbient above BOOT)
 // ═════════════════════════════════════════════════════════
-let audioCtx = null;
+let _unused_audioCtx = null;
 
-function playIntroSound() {
+function _unused_playIntroSound() {
   try {
     if (!audioCtx) {
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -1638,6 +1638,48 @@ function playIntroSound() {
   }
 }
 
+// ════════════════ AMBIENT BACKGROUND MUSIC ════════════════
+let audioCtx = null;
+let ambientPlaying = false;
+let ambientNodes = [];
+
+function createAmbientMusic() {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') audioCtx.resume();
+  const ctx = audioCtx;
+  const master = ctx.createGain(); master.gain.value = 0; master.connect(ctx.destination);
+  ambientNodes = [master];
+  // Sub drone
+  const sub = ctx.createOscillator(); sub.type = 'sine'; sub.frequency.value = 40;
+  const sg = ctx.createGain(); sg.gain.value = 0.06; sub.connect(sg); sg.connect(master); sub.start();
+  // Mid drone
+  const mid = ctx.createOscillator(); mid.type = 'sine'; mid.frequency.value = 120;
+  const mg = ctx.createGain(); mg.gain.value = 0.03; mid.connect(mg); mg.connect(master); mid.start();
+  (function evolve() { if (!ambientPlaying) return; mid.frequency.linearRampToValueAtTime(100 + Math.random() * 60, ctx.currentTime + 8); setTimeout(evolve, 8000); })();
+  // High shimmer
+  const hi = ctx.createOscillator(); hi.type = 'sine'; hi.frequency.value = 600;
+  const hg = ctx.createGain(); hg.gain.value = 0.015; hi.connect(hg); hg.connect(master); hi.start();
+  (function evolve() { if (!ambientPlaying) return; hi.frequency.linearRampToValueAtTime(500 + Math.random() * 300, ctx.currentTime + 6); setTimeout(evolve, 6000); })();
+  // Leaf rustle
+  const buf = ctx.createBuffer(1, ctx.sampleRate * 4, ctx.sampleRate);
+  const d = buf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  const noise = ctx.createBufferSource(); noise.buffer = buf; noise.loop = true;
+  const nf = ctx.createBiquadFilter(); nf.type = 'bandpass'; nf.frequency.value = 2000; nf.Q.value = 0.3;
+  const ng = ctx.createGain(); ng.gain.value = 0.02; noise.connect(nf); nf.connect(ng); ng.connect(master); noise.start();
+  // Occasional chimes
+  function chime(f, del) { if (!ambientPlaying) return; const o = ctx.createOscillator(); const g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0, ctx.currentTime + del); g.gain.linearRampToValueAtTime(0.04, ctx.currentTime + del + 0.08); g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + del + 2); o.connect(g); g.connect(master); o.start(ctx.currentTime + del); o.stop(ctx.currentTime + del + 2); }
+  (function sched() { if (!ambientPlaying) return; const del = 3 + Math.random() * 10; const fs = [262, 330, 392, 523, 659, 784]; chime(fs[Math.floor(Math.random() * fs.length)], 0); chime(fs[Math.floor(Math.random() * fs.length)], 0.15); setTimeout(sched, del * 1000); })();
+  master.gain.linearRampToValueAtTime(0.14, ctx.currentTime + 2);
+}
+
+function stopAmbient() { ambientPlaying = false; if (ambientNodes[0]) { ambientNodes[0].gain.linearRampToValueAtTime(0, audioCtx.currentTime + 1.5); setTimeout(() => { ambientNodes.forEach(n => { try { if (n.stop) n.stop(); } catch {} }); ambientNodes = []; }, 2000); } }
+
+function toggleAmbient() {
+  const btn = document.getElementById('sound-indicator');
+  if (ambientPlaying) { stopAmbient(); if (btn) { btn.textContent = '🔇'; btn.classList.remove('playing'); } }
+  else { ambientPlaying = true; createAmbientMusic(); if (btn) { btn.textContent = '🔊'; btn.classList.add('playing'); } }
+}
+
 // ═════════════════════════════════════════════════════════
 // BOOT
 // ═════════════════════════════════════════════════════════
@@ -1668,32 +1710,22 @@ async function boot() {
   initSearch();
   initFocusTrap();
 
-  // Intro sound on first click
+  // Ambient background music — toggle on click
   const soundBtn = document.getElementById('sound-indicator');
-  function tryPlaySound() {
-    playIntroSound();
-    if (soundBtn) {
-      soundBtn.textContent = '🔊';
-      soundBtn.classList.add('playing');
-    }
-    document.removeEventListener('click', tryPlaySound);
-    document.removeEventListener('touchstart', tryPlaySound);
-    // Reset icon after sound ends
-    setTimeout(() => {
-      if (soundBtn) {
-        soundBtn.textContent = '🔇';
-        soundBtn.classList.remove('playing');
-      }
-    }, 5500);
+  let soundInit = false;
+  function initSound() {
+    if (soundInit) return;
+    soundInit = true;
+    toggleAmbient();
+    document.removeEventListener('click', initSound);
+    document.removeEventListener('touchstart', initSound);
   }
-  document.addEventListener('click', tryPlaySound);
-  document.addEventListener('touchstart', tryPlaySound);
-
-  // Click on sound indicator also triggers
+  document.addEventListener('click', initSound);
+  document.addEventListener('touchstart', initSound);
   if (soundBtn) {
     soundBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      tryPlaySound();
+      toggleAmbient();
     });
   }
 
